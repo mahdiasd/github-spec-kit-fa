@@ -1,0 +1,3109 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>راهنمای جامع و کاربردی GitHub Spec Kit | توسعه مبتنی بر مشخصات (SDD)</title>
+  
+  <!-- Fonts: Vazirmatn & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+  
+  <style>
+    /* CSS Design Tokens - Distinctive Forest Obsidian & Luminous Emerald / Amber */
+    :root, [data-theme="dark"] {
+      --bg-canvas: #090c10;
+      --bg-surface: #0e141a;
+      --bg-surface-elevated: #131c24;
+      --bg-card: #0e141a;
+      --bg-card-hover: #16222c;
+      --bg-code: #070a0d;
+      --code-header-bg: #0b1117;
+      
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.15);
+      --border-accent: #10b981;
+      
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+      
+      --primary: #10b981;          /* Luminous Emerald */
+      --primary-dark: #059669;
+      --primary-light: #34d399;     /* Mint */
+      --primary-subtle: rgba(16, 185, 129, 0.12);
+      --primary-glow: rgba(16, 185, 129, 0.25);
+      
+      --accent-amber: #f59e0b;      /* Warm Ochre/Gold */
+      --accent-purple: #a855f7;
+      --accent-rose: #f43f5e;
+      --accent-cyan: #14b8a6;
+      
+      --hero-bg: linear-gradient(180deg, rgba(19, 28, 36, 0.92) 0%, rgba(14, 20, 26, 0.97) 100%);
+      --hero-border: rgba(16, 185, 129, 0.25);
+      
+      --sidebar-width: 315px;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-xl: 18px;
+    }
+
+    /* CSS Design Tokens - Light Theme */
+    [data-theme="light"] {
+      --bg-canvas: #f7faf8;
+      --bg-surface: #ffffff;
+      --bg-surface-elevated: #eef4f0;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f0f7f3;
+      --bg-code: #0b1117;
+      --code-header-bg: #121a22;
+      
+      --border-subtle: #e0e8e3;
+      --border-strong: #c8d6ce;
+      --border-accent: #059669;
+      
+      --text-main: #0f1814;
+      --text-muted: #495750;
+      --text-dim: #6b7a73;
+      
+      --primary: #059669;          /* Deep Forest Emerald */
+      --primary-dark: #047857;
+      --primary-light: #10b981;
+      --primary-subtle: rgba(5, 150, 105, 0.09);
+      --primary-glow: rgba(5, 150, 105, 0.2);
+      
+      --accent-amber: #d97706;
+      --accent-purple: #9333ea;
+      --accent-rose: #e11d48;
+      --accent-cyan: #0d9488;
+      
+      --hero-bg: linear-gradient(180deg, #ffffff 0%, #f0f7f3 100%);
+      --hero-border: rgba(5, 150, 105, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+      scrollbar-gutter: stable;
+    }
+
+    body {
+      font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Tahoma, sans-serif;
+      background-color: var(--bg-canvas);
+      color: var(--text-main);
+      line-height: 1.95;
+      direction: rtl;
+      text-align: right;
+      overflow-x: hidden;
+      transition: background-color 0.2s ease, color 0.2s ease;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Scroll progress bar */
+    #scroll-progress {
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light), var(--accent-amber));
+      z-index: 1000;
+      transform-origin: 100% 50%;
+      transform: scaleX(0);
+      transition: transform 0.1s ease-out;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-canvas);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #273644;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #384e61;
+    }
+
+    /* App Layout */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Mobile Header */
+    .mobile-header {
+      display: none;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.9rem 1.4rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .theme-toggle-btn {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-strong);
+      color: var(--text-main);
+      padding: 0.45rem 0.75rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.82rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .menu-toggle {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-strong);
+      color: var(--text-main);
+      padding: 0.45rem 0.85rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-surface);
+      border-left: 1px solid var(--border-subtle);
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 50;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .sidebar-header {
+      padding: 1.2rem 1.2rem 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .brand-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      background: var(--primary-subtle);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .brand-text h1 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.3;
+    }
+
+    .brand-text span {
+      font-size: 0.74rem;
+      color: var(--text-dim);
+      display: block;
+      margin-top: 0.1rem;
+    }
+
+    /* Search Box */
+    .search-box {
+      margin-top: 1rem;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 0.9rem 0.6rem 2.3rem;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.84rem;
+      outline: none;
+      transition: all 0.15s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+
+    /* Navigation List */
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem 0.75rem 2rem;
+      scroll-behavior: smooth;
+    }
+
+    .nav-group-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 700;
+      padding: 0.5rem 0.6rem 0.4rem;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-section-group {
+      margin-bottom: 0.35rem;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.55rem 0.75rem;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.86rem;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
+      line-height: 1.5;
+    }
+
+    .nav-item:hover {
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+    }
+
+    .nav-item.active {
+      background: var(--primary-subtle);
+      color: var(--primary);
+      font-weight: 700;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .nav-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      background: var(--bg-surface-elevated);
+      color: var(--text-dim);
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-weight: 600;
+    }
+
+    .nav-item.active .nav-num {
+      background: rgba(16, 185, 129, 0.25);
+      color: var(--primary);
+    }
+
+    /* Nested Sub-navigation for Commands */
+    .nav-sub-items {
+      margin-right: 1.1rem;
+      padding-right: 0.75rem;
+      border-right: 1.5px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      margin-top: 0.25rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .nav-sub-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.35rem 0.6rem;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.78rem;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
+      line-height: 1.4;
+    }
+
+    .nav-sub-item:hover {
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+    }
+
+    .nav-sub-item.active {
+      background: var(--primary-subtle);
+      color: var(--primary);
+      font-weight: 600;
+      border-color: rgba(16, 185, 129, 0.25);
+    }
+
+    .nav-sub-item code {
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 0.72rem;
+      color: var(--primary);
+      background: var(--primary-subtle);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      direction: ltr;
+      display: inline-block;
+    }
+
+    .nav-sub-item .nav-sub-label {
+      font-size: 0.74rem;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    .nav-sub-item:hover .nav-sub-label,
+    .nav-sub-item.active .nav-sub-label {
+      color: var(--text-muted);
+    }
+
+    /* Main Reading Area */
+    .main-content {
+      flex: 1;
+      max-width: 880px;
+      padding: 3.5rem 3.5rem 7rem;
+      margin: 0 auto;
+    }
+
+    /* Engineering Hero Console with Stats Boxes */
+    .hero-banner {
+      background: var(--hero-bg);
+      border: 1px solid var(--hero-border);
+      border-radius: var(--radius-xl);
+      padding: 2.6rem 2.6rem 2.2rem;
+      margin-bottom: 4rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.25);
+    }
+
+    .hero-banner::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--primary), var(--accent-amber), transparent);
+    }
+
+    .hero-tag-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--primary-subtle);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: var(--primary);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--primary);
+      box-shadow: 0 0 10px var(--primary);
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .hero-badge {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .hero-title {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 1rem;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+    }
+
+    .hero-desc {
+      color: var(--text-muted);
+      font-size: 1.08rem;
+      line-height: 1.9;
+      max-width: 800px;
+      margin-bottom: 2rem;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.4rem;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 1.6rem;
+    }
+
+    .stat-item {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.1rem 1.3rem;
+      transition: all 0.2s ease;
+    }
+
+    .stat-item:hover {
+      border-color: rgba(16, 185, 129, 0.35);
+      background: var(--bg-card-hover);
+    }
+
+    .stat-item h4 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 0.25rem;
+      font-family: 'JetBrains Mono', 'Vazirmatn', monospace;
+    }
+
+    .stat-item p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* Section Styling */
+    .doc-section {
+      margin-bottom: 6rem;
+      scroll-margin-top: 5rem;
+    }
+
+    .section-header {
+      margin-bottom: 2.8rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 1.8rem;
+      position: relative;
+    }
+
+    .badge-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--primary-subtle);
+      color: var(--primary);
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 0.8rem;
+      font-family: 'JetBrains Mono', 'Vazirmatn', monospace;
+    }
+
+    .section-header h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 0.8rem;
+      letter-spacing: -0.01em;
+      line-height: 1.4;
+    }
+
+    .section-lead {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      line-height: 1.9;
+      max-width: 780px;
+    }
+
+    .content-block {
+      margin-bottom: 3.8rem;
+      scroll-margin-top: 5.5rem;
+    }
+
+    .content-block h3 {
+      font-size: 1.32rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 2.8rem 0 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      letter-spacing: -0.01em;
+    }
+
+    .content-block h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin: 2rem 0 0.85rem;
+    }
+
+    .content-block p {
+      color: var(--text-muted);
+      margin-bottom: 1.4rem;
+      font-size: 1rem;
+      line-height: 1.95;
+    }
+
+    strong, b {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .category-pill {
+      display: inline-block;
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--primary);
+      background: var(--primary-subtle);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      padding: 0.2rem 0.65rem;
+      border-radius: 20px;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Elevated Callout Banners */
+    .callout {
+      display: flex;
+      gap: 1.1rem;
+      padding: 1.25rem 1.6rem;
+      border-radius: var(--radius-md);
+      margin: 2rem 0;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      position: relative;
+    }
+
+    .callout-icon {
+      font-size: 1.35rem;
+      flex-shrink: 0;
+      line-height: 1.4;
+    }
+
+    .callout-body {
+      font-size: 0.94rem;
+      color: var(--text-main);
+      line-height: 1.85;
+    }
+
+    .callout-body strong {
+      display: block;
+      margin-bottom: 0.3rem;
+      color: var(--text-main);
+      font-size: 0.98rem;
+    }
+
+    .callout-info {
+      border-right: 3px solid var(--primary);
+    }
+
+    .callout-tip {
+      border-right: 3px solid var(--primary-light);
+    }
+
+    .callout-warning {
+      border-right: 3px solid var(--accent-amber);
+    }
+
+    .callout-important {
+      border-right: 3px solid var(--accent-rose);
+    }
+
+    .callout-note {
+      border-right: 3px solid var(--accent-purple);
+    }
+
+    /* Visual Workflow Diagrams (Section 3 & 4) */
+    .diagram-caption {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .workflow-diagram {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 1.4rem 1.6rem;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-lg);
+      margin: 0.5rem 0 3rem;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      direction: rtl;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .workflow-diagram::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .workflow-diagram::-webkit-scrollbar-thumb {
+      background: rgba(16, 185, 129, 0.3);
+      border-radius: 3px;
+    }
+
+    .diagram-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 110px;
+      padding: 0.9rem 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .diagram-step:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.15);
+      background: var(--bg-card-hover);
+    }
+
+    .diagram-step .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--primary-subtle);
+      color: var(--primary);
+      font-size: 0.72rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.45rem;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .diagram-step:hover .step-num {
+      background: var(--primary);
+      color: #090c10;
+    }
+
+    .diagram-step .step-title {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      direction: ltr;
+      white-space: nowrap;
+    }
+
+    .diagram-arrow {
+      color: var(--primary);
+      opacity: 0.6;
+      font-size: 1rem;
+      flex-shrink: 0;
+      transform: rotate(180deg);
+      user-select: none;
+    }
+
+    /* Paradigm Comparison Diagram (Section 1) */
+    .paradigm-comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.6rem;
+      margin: 1rem 0 3rem;
+    }
+
+    .paradigm-col {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.6rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .paradigm-col.vibe-coding {
+      border-top: 3px solid var(--accent-rose);
+    }
+
+    .paradigm-col.sdd-coding {
+      border-top: 3px solid var(--primary);
+    }
+
+    .paradigm-header {
+      margin-bottom: 1.4rem;
+      text-align: center;
+    }
+
+    .paradigm-badge {
+      display: inline-block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 0.35rem 0.9rem;
+      border-radius: 20px;
+    }
+
+    .paradigm-badge.bad {
+      background: rgba(244, 63, 94, 0.12);
+      color: var(--accent-rose);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+
+    .paradigm-badge.good {
+      background: var(--primary-subtle);
+      color: var(--primary);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .flow-steps {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .flow-node {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      font-size: 0.88rem;
+      text-align: center;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .flow-node.danger {
+      border-color: rgba(244, 63, 94, 0.4);
+      background: rgba(244, 63, 94, 0.08);
+      color: #fca5a5;
+      font-weight: 700;
+    }
+
+    .flow-node.success {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: var(--primary-subtle);
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .flow-arrow {
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      opacity: 0.7;
+    }
+
+    /* Grid Concept Cards */
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.4rem;
+      margin: 2rem 0;
+    }
+
+    .concept-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.6rem;
+      transition: all 0.22s ease;
+      position: relative;
+    }
+
+    .concept-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.12);
+      background: var(--bg-card-hover);
+    }
+
+    .concept-card.border-green {
+      border-right: 3px solid var(--primary);
+    }
+
+    .concept-card.border-amber {
+      border-right: 3px solid var(--accent-amber);
+    }
+
+    .card-icon {
+      font-size: 1.8rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .concept-card h4 {
+      font-size: 1.1rem;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .concept-card p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      margin: 0;
+      line-height: 1.8;
+    }
+
+    /* Terminology List */
+    .term-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 1.2rem;
+      transition: all 0.2s ease;
+    }
+
+    .term-item:hover {
+      border-color: var(--primary);
+      background: var(--bg-card-hover);
+    }
+
+    .term-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.6rem;
+    }
+
+    .term-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primary);
+      font-family: 'JetBrains Mono', 'Vazirmatn', monospace;
+    }
+
+    .term-tag {
+      font-size: 0.74rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-dim);
+    }
+
+    .term-desc {
+      font-size: 0.94rem;
+      color: var(--text-muted);
+      margin: 0;
+      line-height: 1.85;
+    }
+
+    .rule-highlight {
+      color: var(--accent-amber);
+      font-weight: 600;
+    }
+
+    /* Code Container & Terminal Mockup */
+    .code-container {
+      background: var(--bg-code);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      margin: 2rem 0;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.65rem 1.1rem;
+      background: var(--code-header-bg);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      direction: ltr;
+    }
+
+    .terminal-dots {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      opacity: 0.85;
+    }
+    .dot.red { background: #ef4444; }
+    .dot.yellow { background: #f59e0b; }
+    .dot.green { background: #10b981; }
+
+    .code-lang {
+      color: #9ca3af;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+      border-radius: var(--radius-sm);
+      padding: 0.3rem 0.75rem;
+      font-size: 0.76rem;
+      cursor: pointer;
+      font-family: 'Vazirmatn', sans-serif;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .copy-btn:hover {
+      background: var(--primary-subtle);
+      color: var(--primary-light);
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    pre {
+      margin: 0;
+      padding: 1.3rem 1.6rem;
+      overflow-x: auto;
+      direction: ltr;
+      text-align: left;
+      font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+      font-size: 0.88rem;
+      line-height: 1.8;
+      color: #e5e7eb;
+      tab-size: 2;
+    }
+
+    code {
+      font-family: inherit;
+    }
+
+    /* Persian Comments inside Code Blocks - Vazirmatn Luminous Mint */
+    .code-comment {
+      display: block;
+      font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, Tahoma, sans-serif !important;
+      font-size: 0.86rem;
+      font-weight: 500;
+      color: #6ee7b7;
+      line-height: 1.85;
+      margin-top: 0.65rem;
+      margin-bottom: 0.25rem;
+      direction: ltr;
+      text-align: left;
+      letter-spacing: normal;
+    }
+
+    [data-theme="light"] .code-comment {
+      color: #059669;
+    }
+
+    code > .code-comment:first-child {
+      margin-top: 0;
+    }
+
+    p code, li code, td code {
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 0.84em;
+      color: var(--primary);
+      background: var(--primary-subtle);
+      padding: 0.15em 0.45em;
+      border-radius: 4px;
+      direction: ltr;
+      display: inline-block;
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      margin: 2rem 0;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: right;
+      font-size: 0.92rem;
+    }
+
+    th {
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+      padding: 0.9rem 1.2rem;
+      font-weight: 700;
+      border-bottom: 1px solid var(--border-strong);
+    }
+
+    td {
+      padding: 0.9rem 1.2rem;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: var(--bg-card-hover);
+    }
+
+    /* Step Timeline in Section 3 & 4 */
+    .step-timeline {
+      margin: 2.5rem 0;
+      position: relative;
+    }
+
+    .step-timeline::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 18px;
+      width: 2px;
+      background: var(--border-strong);
+    }
+
+    .step-entry {
+      position: relative;
+      padding-right: 3.2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .step-entry:last-child {
+      margin-bottom: 0;
+    }
+
+    .step-marker {
+      position: absolute;
+      right: 6px;
+      top: 0.15rem;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--bg-canvas);
+      border: 2px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--primary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .step-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.45rem;
+    }
+
+    .step-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.85;
+    }
+
+    /* Lists */
+    ul, ol {
+      margin: 1rem 0 1.5rem 0;
+      padding-right: 1.5rem;
+      color: var(--text-muted);
+    }
+
+    li {
+      margin-bottom: 0.6rem;
+      line-height: 1.85;
+    }
+
+    /* Footer & Author Attribution */
+    .doc-footer {
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 3rem;
+      margin-top: 6rem;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.88rem;
+      line-height: 1.9;
+    }
+
+    .author-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--bg-surface-elevated);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 0.45rem 1.2rem;
+      border-radius: 30px;
+      margin-bottom: 1rem;
+    }
+
+    .author-label {
+      color: var(--text-dim);
+      font-size: 0.82rem;
+    }
+
+    .author-name {
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.94rem;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 860px) {
+      .mobile-header {
+        display: flex;
+      }
+      
+      .sidebar {
+        position: fixed;
+        right: -100%;
+        top: 0;
+        bottom: 0;
+        width: 290px;
+        transition: right 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.4);
+      }
+      
+      .sidebar.open {
+        right: 0;
+      }
+      
+      .main-content {
+        padding: 2rem 1.4rem 5rem;
+        max-width: 100%;
+      }
+      
+      .hero-title {
+        font-size: 1.75rem;
+      }
+
+      .hero-stats {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+      }
+
+      .paradigm-comparison {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Scroll Progress Indicator -->
+  <div id="scroll-progress"></div>
+
+  <!-- Mobile Header Bar -->
+  <header class="mobile-header">
+    <div class="brand-logo">
+      <div class="brand-icon-box">🌱</div>
+      <div class="brand-text">
+        <h1>Spec Kit</h1>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="theme-toggle-btn" onclick="toggleTheme()" title="تغییر تم">
+        <span class="theme-icon">🌙</span>
+      </button>
+      <button class="menu-toggle" onclick="toggleSidebar()">فهرست ☰</button>
+    </div>
+  </header>
+
+  <div class="app-container">
+
+    <!-- Unified Interactive Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-row">
+          <a href="#" class="brand-logo">
+            <div class="brand-icon-box">🌱</div>
+            <div class="brand-text">
+              <h1>GitHub Spec Kit</h1>
+              <span>راهنمای جامع توسعه مبتنی بر مشخصات</span>
+            </div>
+          </a>
+          <button class="theme-toggle-btn" onclick="toggleTheme()" title="تغییر تم بین تاریک و روشن">
+            <span class="theme-icon">🌙</span>
+          </button>
+        </div>
+
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" class="search-input" placeholder="جستجوی دستور، مفهوم یا بخش..." onkeyup="filterNavigation()">
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <div class="nav-group-title">سرفصل‌ها و دستورات</div>
+        
+        <!-- Section 01 -->
+        <div class="nav-section-group">
+          <a href="#intro-concepts" class="nav-item active" onclick="selectNav(this)">
+            <span class="nav-num">01</span>
+            <span>مقدمه، فلسفه SDD و واژه‌نامه</span>
+          </a>
+        </div>
+
+        <!-- Section 02 -->
+        <div class="nav-section-group">
+          <a href="#setup-cli" class="nav-item" onclick="selectNav(this)">
+            <span class="nav-num">02</span>
+            <span>پیش‌نیازها و نصب CLI</span>
+          </a>
+        </div>
+
+        <!-- Section 03 -->
+        <div class="nav-section-group">
+          <a href="#step-by-step-new" class="nav-item" onclick="selectNav(this)">
+            <span class="nav-num">03</span>
+            <span>پروژه جدید (Greenfield)</span>
+          </a>
+          <div class="nav-sub-items">
+            <a href="#cmd-init" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>specify init</code>
+              <span class="nav-sub-label">گام ۰: راه‌اندازی</span>
+            </a>
+            <a href="#cmd-constitution" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>/speckit.constitution</code>
+              <span class="nav-sub-label">گام ۱: قانون اساسی</span>
+            </a>
+            <a href="#cmd-specify" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>/speckit.specify</code>
+              <span class="nav-sub-label">گام ۲: نیازمندی‌ها</span>
+            </a>
+            <a href="#cmd-clarify" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>/speckit.clarify</code>
+              <span class="nav-sub-label">گام ۳: رفع ابهام</span>
+            </a>
+            <a href="#cmd-plan" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>/speckit.plan</code>
+              <span class="nav-sub-label">گام ۴: معماری</span>
+            </a>
+            <a href="#cmd-checklist" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>/speckit.checklist</code>
+              <span class="nav-sub-label">گام ۵: چک‌لیست شروط</span>
+            </a>
+            <a href="#cmd-tasks" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>/speckit.tasks</code>
+              <span class="nav-sub-label">گام ۶: وظایف اجرایی</span>
+            </a>
+            <a href="#cmd-analyze" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>/speckit.analyze</code>
+              <span class="nav-sub-label">گام ۷: تحلیل انطباق</span>
+            </a>
+            <a href="#cmd-implement" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>/speckit.implement</code>
+              <span class="nav-sub-label">گام ۸: کدنویسی خودکار</span>
+            </a>
+            <a href="#cmd-converge" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>/speckit.converge</code>
+              <span class="nav-sub-label">گام ۹: تست و همگرایی</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Section 04 -->
+        <div class="nav-section-group">
+          <a href="#step-by-step-existing" class="nav-item" onclick="selectNav(this)">
+            <span class="nav-num">04</span>
+            <span>پروژه موجود (Brownfield)</span>
+          </a>
+          <div class="nav-sub-items">
+            <a href="#cmd-bf-init" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>specify init --existing</code>
+              <span class="nav-sub-label">گام ۱: استقرار امن</span>
+            </a>
+            <a href="#cmd-bf-constitution" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>/speckit.constitution</code>
+              <span class="nav-sub-label">گام ۲: خطوط قرمز</span>
+            </a>
+            <a href="#cmd-bf-specify" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>/speckit.specify</code>
+              <span class="nav-sub-label">گام ۳: فیچر جدید</span>
+            </a>
+            <a href="#cmd-bf-plan" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>/speckit.plan</code>
+              <span class="nav-sub-label">گام ۴: اتصال سیستم</span>
+            </a>
+            <a href="#cmd-bf-tasks-implement" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>/speckit.tasks & implement</code>
+              <span class="nav-sub-label">گام ۵: ساخت محتاط</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Section 05 -->
+        <div class="nav-section-group">
+          <a href="#extra-commands" class="nav-item" onclick="selectNav(this)">
+            <span class="nav-num">05</span>
+            <span>دستورات پیشرفته و افزونه‌ها</span>
+          </a>
+          <div class="nav-sub-items">
+            <a href="#cmd-ext-bug" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>/speckit.bug.assess</code>
+              <span class="nav-sub-label">مدیریت باگ</span>
+            </a>
+            <a href="#cmd-ext-assess" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>/speckit.assess</code>
+              <span class="nav-sub-label">سنجش ایده</span>
+            </a>
+            <a href="#cmd-ext-git" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>/speckit.git.checkpoint</code>
+              <span class="nav-sub-label">مدیریت گیت</span>
+            </a>
+            <a href="#cmd-ext-agent-context" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>/speckit.agent-context</code>
+              <span class="nav-sub-label">کانتکست ایجنت</span>
+            </a>
+            <a href="#cmd-integration" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>specify integration</code>
+              <span class="nav-sub-label">مدیریت ایجنت‌ها</span>
+            </a>
+            <a href="#cmd-extension" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>specify extension</code>
+              <span class="nav-sub-label">اکستنشن‌ها</span>
+            </a>
+            <a href="#cmd-preset" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>specify preset</code>
+              <span class="nav-sub-label">پریست‌ها</span>
+            </a>
+            <a href="#cmd-bundle" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>specify bundle</code>
+              <span class="nav-sub-label">بسته‌های نقشی</span>
+            </a>
+            <a href="#cmd-workflow" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>specify workflow</code>
+              <span class="nav-sub-label">موتور پایپ‌لاین</span>
+            </a>
+            <a href="#cmd-artifact" class="nav-sub-item" onclick="selectSubNav(this)">
+              <code>specify artifact</code>
+              <span class="nav-sub-label">بازرسی عمیق</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Section 06 -->
+        <div class="nav-section-group">
+          <a href="#tips-troubleshooting" class="nav-item" onclick="selectNav(this)">
+            <span class="nav-num">06</span>
+            <span>نکات طلایی و رفع اشکال</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Container -->
+    <main class="main-content">
+
+      <!-- Engineering Hero Console with Restored Stats Boxes -->
+      <header class="hero-banner">
+        <div class="hero-tag-row">
+          <div class="hero-status-pill">
+            <span class="status-dot"></span>
+            <span>محیط پایدار نسخه ۱.۰.۰</span>
+          </div>
+          <span class="hero-badge">Spec-Driven Development</span>
+          <span class="hero-badge">Human-In-The-Loop</span>
+        </div>
+        <h1 class="hero-title">راهنمای جامع و کاربردی GitHub Spec Kit</h1>
+        <p class="hero-desc">
+          توسعه نرم‌افزار حرفه‌ای، مستند و بدون خطا با تمام ایجنت‌های هوش مصنوعی. تعریف دقیق «آنچه باید ساخته شود» پیش از آنکه دست به کد ببرید.
+        </p>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <h4>۳۰+ Agent</h4>
+            <p>سازگار با تمام ابزارهای مطرح هوش مصنوعی</p>
+          </div>
+          <div class="stat-item">
+            <h4>۰٪ توهم و حدس</h4>
+            <p>تثبیت مشخصات پیش از آغاز کدنویسی</p>
+          </div>
+          <div class="stat-item">
+            <h4>۱۰۰٪ همگرایی</h4>
+            <p>تضمین انطباق کامل کدهای خروجی با نیازها</p>
+          </div>
+        </div>
+      </header>
+
+      <!-- Included Sections Content -->
+      
+<!-- SECTION: section1_intro_concepts.html -->
+<section id="intro-concepts" class="doc-section">
+  <div class="section-header">
+    <div class="badge-tag">بخش اول</div>
+    <h2>مقدمه، فلسفه SDD و واژه‌نامه تخصصی</h2>
+    <p class="section-lead">
+      چرا دوران پرامپت‌نویسی تصادفی و اصطلاحاً Vibe-Coding به پایان رسیده و چطور با Spec Kit کدهای مطمئن، مقیاس‌پذیر و شفاف تولید کنیم؟
+    </p>
+  </div>
+
+  <div class="content-block">
+    <h3>داستان از کجا شروع شد؟ خداحافظی با سردرگمی در هوش مصنوعی</h3>
+    <p>
+      احتمالاً برای شما هم پیش آمده که یک ایده جالب به ذهنتان می‌رسد، پنجره چت مدل هوش مصنوعی (مثل Claude، Copilot، Gemini یا Cursor) را باز می‌کنید و با یک پرامپت طولانی می‌گویید: <em>«یک برنامه مدیریت وظایف با سیستم احراز هویت و دیتابیس پستگرس برای من بساز!»</em>. 
+    </p>
+    <p>
+      در دقایق اول همه چیز شبیه جادو به نظر می‌رسد. مدل شروع می‌کند به تولید صدها خط کد؛ اما به محض اینکه می‌خواهید یک قابلیت جدید اضافه کنید، مشکلی را دیباگ کنید یا رفتار یک دکمه را تغییر دهید، کل ساختار مثل یک خانه پوشالی فرو می‌ریزد! مدل شروع به توهم زدن (Hallucination) می‌کند، ساختار دیتابیس را فراموش می‌کند و کدهایی متناقض با بخش‌های قبلی تحویل می‌دهد. این حالت ناپایدار را در دنیای مهندسی <strong>Vibe-Coding</strong> می‌نامند: کدنویسی بر اساس حس و حال، بدون نقشه راه مشخص و با تکیه بر شانس!
+    </p>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <strong>راهکار چیست؟</strong>
+        تیم گیت‌هاب برای حل ریشه‌ای این معضل، جعبه‌ابزار متن‌باز <strong>GitHub Spec Kit</strong> را بر پایه رویکرد <strong>Spec-Driven Development (توسعه مبتنی بر مشخصات)</strong> خلق کرد تا رابطه میان برنامه‌نویس و ایجنت‌های هوش مصنوعی را قانون‌مند، ساختاریافته و تضمین‌شده کند.
+      </div>
+    </div>
+
+    <!-- Visual Paradigm Comparison Diagram -->
+    <div class="diagram-caption">📊 مقایسه تصویری دو رویکرد: کدنویسی سنتی بر اساس حدس (Vibe-Coding) در برابر توسعه مبتنی بر مشخصات (SDD)</div>
+    <div class="paradigm-comparison">
+      <div class="paradigm-col vibe-coding">
+        <div class="paradigm-header">
+          <span class="paradigm-badge bad">❌ رویکرد پرخطر: Vibe-Coding</span>
+        </div>
+        <div class="flow-steps">
+          <div class="flow-node">💬 پرامپت کلی و مبهم بدون مرزبندی مشخص</div>
+          <div class="flow-arrow">⬇</div>
+          <div class="flow-node">⚡ تولید صدها خط کد شتاب‌زده توسط ایجنت</div>
+          <div class="flow-arrow">⬇</div>
+          <div class="flow-node">🌀 توهم، فراموشی مدل و تناقض معماری</div>
+          <div class="flow-arrow">⬇</div>
+          <div class="flow-node danger">💥 بن‌بست دیباگ، باگ‌های دوره‌ای و فروپاشی پروژه</div>
+        </div>
+      </div>
+      <div class="paradigm-col sdd-coding">
+        <div class="paradigm-header">
+          <span class="paradigm-badge good">✅ رویکرد تضمین‌شده: GitHub Spec Kit</span>
+        </div>
+        <div class="flow-steps">
+          <div class="flow-node">📜 تدوین قانون اساسی و خطوط قرمز (Constitution)</div>
+          <div class="flow-arrow">⬇</div>
+          <div class="flow-node">🎯 مشخصات دقیق و رفع ابهامات (Spec & Clarify)</div>
+          <div class="flow-arrow">⬇</div>
+          <div class="flow-node">🏗️ طرح معماری و وظایف تست‌پذیر (Plan & Tasks)</div>
+          <div class="flow-arrow">⬇</div>
+          <div class="flow-node success">✨ پیاده‌سازی همگرا، مطمئن و ۱۰۰٪ منطبق با نیاز (Converge)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3>وارونگی قدرت (The Power Inversion): اصل طلایی Spec Kit</h3>
+    <p>
+      در مهندسی نرم‌افزار سنتی طی دهه‌های گذشته، همیشه <strong>کد پادشاه بود (Code is King)</strong>. ما اسناد نیازمندی‌ها (PRD)، نقشه‌های معماری و نمودارها را می‌نوشتیم، اما به محض اینکه کدنویسی واقعی شروع می‌شد، آن اسناد در پوشه‌ها خاک می‌خوردند و فراموش می‌شدند. حقیقت نهایی فقط و فقط در خطوط کد خلاصه می‌شد.
+    </p>
+    <p>
+      <strong>توسعه مبتنی بر مشخصات (SDD) این ساختار قدرت را ۱۸۰ درجه وارونه می‌کند:</strong>
+    </p>
+    <div class="grid-cards">
+      <div class="concept-card">
+        <div class="card-icon">👑</div>
+        <h4>مشخصات پادشاه است</h4>
+        <p>مشخصات نیازمندی‌ها دیگر یک برگه راهنمای بی‌استفاده نیست؛ بلکه «منبع اصلی حقیقت» (Single Source of Truth) است که مستقیماً کدهای پروژه را خلق و هدایت می‌کند.</p>
+      </div>
+      <div class="concept-card">
+        <div class="card-icon">⚙️</div>
+        <h4>کد، محصول جانبی و خدمتگزار است</h4>
+        <p>کد صرفاً پیاده‌سازی و ترجمه آخرین نسخه از مشخصات است. هر زمان تغییری در سیستم بخواهیم، اول سند مشخصات آپدیت می‌شود و سپس کدها بر پایه آن دوباره همگرا می‌شوند.</p>
+      </div>
+      <div class="concept-card">
+        <div class="card-icon">🎯</div>
+        <h4>مشخصات اجرایی (Executable Specs)</h4>
+        <p>در Spec Kit، اسناد متنی صرفاً برای خواندن انسان نیستند؛ ایجنت هوش مصنوعی آنها را به عنوان دستورالعمل‌های کامپایل‌شونده می‌فهمد و فاز به فاز به کدهای تست‌شده تبدیل می‌کند.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3>واژه‌نامه تخصصی: اصطلاحات کلیدی این ابزار به زبان ساده</h3>
+    <p>
+      قبل از اینکه سراغ ترمینال و دستورات برویم، باید با ادبیات و مفاهیم اصلی ابزار Spec Kit آشنا شویم. درک درست این مفاهیم باعث می‌شود بدانید هر دستور در چه زمانی و به چه دلیلی باید صدا زده شود.
+    </p>
+
+    <div class="term-item">
+      <div class="term-head">
+        <span class="term-title">1. قانون اساسی پروژه (Constitution)</span>
+        <span class="term-tag">هسته اصلی</span>
+      </div>
+      <p class="term-desc">
+        فایلی به نام <code>.specify/constitution.md</code> است که «قوانین غیرقابل‌مذاکره» و خط‌مشی‌های بنیادین تیم شما را ثبت می‌کند. مثلاً: <em>«این پروژه به هیچ عنوان نباید از ORM استفاده کند»، «همیشه از معماری تمیز و رویکرد TDD استفاده شود»، «هیچ کتابخانه جانبی اضافه نشود مگر با ضرورت اثبات‌شده»</em>. تمامی گام‌های بعدی هوش مصنوعی باید مو به مو با این قانون اساسی هماهنگ باشند.
+      </p>
+    </div>
+
+    <div class="term-item">
+      <div class="term-head">
+        <span class="term-title">2. سند مشخصات (Specification یا Spec)</span>
+        <span class="term-tag">فاز تعریف نیازمندی</span>
+      </div>
+      <p class="term-desc">
+        سندی با پسوند <code>spec.md</code> که دقیقاً توضیح می‌دهد سیستم <strong>چه کاری (What)</strong> باید انجام دهد و <strong>چرا (Why)</strong> کاربران به آن نیاز دارند. 
+        <br>
+        <span class="rule-highlight">نکته حیاتی:</span> در فاز Spec حق ندارید از تکنولوژی‌ها، فریم‌ورک‌ها یا نام دیتابیس صحبت کنید! تمرکز صد درصد روی تجربه کاربر، جریان‌های کاری و سناریوهای پذیرش (Acceptance Criteria) است.
+      </p>
+    </div>
+
+    <div class="term-item">
+      <div class="term-head">
+        <span class="term-title">3. شفاف‌سازی ابهامات (Clarify)</span>
+        <span class="term-tag">فاز رفع ابهام</span>
+      </div>
+      <p class="term-desc">
+        هوش مصنوعی به طور طبیعی تمایل دارد جاهایی که مشخصات گنگ است را با حدس و گمان پر کند (که منجر به باگ می‌شود). دستور <code>/speckit.clarify</code> ایجنت را موظف می‌کند تا حداکثر ۵ سوال هدفمند و دقیق درباره نقاط تاریک نیازمندی بپرسد و پاسخ‌های شما را در سند <code>spec.md</code> تثبیت کند تا هیچ حدسی زده نشود.
+      </p>
+    </div>
+
+    <div class="term-item">
+      <div class="term-head">
+        <span class="term-title">4. نقشه معماری فنی (Plan)</span>
+        <span class="term-tag">فاز طراحی مهندسی</span>
+      </div>
+      <p class="term-desc">
+        سندی با نام <code>plan.md</code> که پاسخ می‌دهد نیازمندی‌ها <strong>چگونه (How)</strong> باید پیاده‌سازی شوند. اینجا دقیقاً همان جایی است که پشته فنی، انتخاب زبان، فریم‌ورک‌ها، معماری دیتابیس، قراردادهای API (مثل OpenAPI/REST) و نحوه تست‌نویسی تعیین و مکتوب می‌گردد.
+      </p>
+    </div>
+
+    <div class="term-item">
+      <div class="term-head">
+        <span class="term-title">5. چک‌لیست کیفیت (Checklist)</span>
+        <span class="term-tag">تست نیازمندی‌ها</span>
+      </div>
+      <p class="term-desc">
+        چک‌لیست در واقع «تست واحد برای ادبیات و نیازمندی‌ها» است! قبل از اینکه خطی کد نوشته شود، این چک‌لیست مواردی مثل مبهم نبودن رفتار سیستم در شرایط خطا، کامل بودن معیارهای پذیرش و تست‌پذیری همه بندها را کنترل می‌کند.
+      </p>
+    </div>
+
+    <div class="term-item">
+      <div class="term-head">
+        <span class="term-title">6. فهرست وظایف خرد شده (Tasks)</span>
+        <span class="term-tag">فاز تفکیک کار</span>
+      </div>
+      <p class="term-desc">
+        سند <code>tasks.md</code> که نقشه فنی را به وظایف مهندسی ریز، منظم و فازبندی‌شده تقسیم می‌کند. تسک‌ها اولویت‌بندی می‌شوند (پیش‌نیازها اول، فیچرها بعد) و تسک‌هایی که به هم وابسته نیستند با تگ <code>[P]</code> برای اجرای موازی مشخص می‌گردند.
+      </p>
+    </div>
+
+    <div class="term-item">
+      <div class="term-head">
+        <span class="term-title">7. پیاده‌سازی و کدنویسی (Implement)</span>
+        <span class="term-tag">فاز ساخت</span>
+      </div>
+      <p class="term-desc">
+        مرحله‌ای که ایجنت دست به کار می‌شود و تسک‌های سند <code>tasks.md</code> را فاز به فاز در کد پیاده می‌کند. به جای کدنویسی رگباری، فاز اول (پایه‌ها و مدل‌ها) ساخته و تست می‌شود، سپس فازهای بعدی به ترتیب بالا می‌آیند.
+      </p>
+    </div>
+
+    <div class="term-item">
+      <div class="term-head">
+        <span class="term-title">8. سنجش همگرایی (Converge)</span>
+        <span class="term-tag">تضمین کیفیت و پایان</span>
+      </div>
+      <p class="term-desc">
+        این دستور کل کدهای نوشته‌شده را با اسناد <code>spec.md</code>، <code>plan.md</code> و <code>tasks.md</code> مطابقت می‌دهد. اگر موردی ناقص مانده باشد، آن را به عنوان تسک جدید به انتهای فایل تسک‌ها اضافه می‌کند تا ایجنت تکمیلش کند؛ و این حلقه ادامه می‌یابد تا زمانی که وضعیت <strong>Converged (همگرا شده)</strong> اعلام شود.
+      </p>
+    </div>
+
+    <div class="term-item">
+      <div class="term-head">
+        <span class="term-title">9. پریست (Preset) چیست؟</span>
+        <span class="term-tag">شخصی‌سازی سبک و ساختار</span>
+      </div>
+      <p class="term-desc">
+        <strong>پریست (Preset)</strong> روشی است برای تغییر <em>«نحوه کارکرد»</em> Spec Kit بدون اینکه دستور جدیدی اضافه شود. مثلاً اگر شرکت شما استاندارد خاصی برای نام‌گذاری اسناد دارد، یا ممیزی‌های امنیتی سخت‌گیرانه (مثل HIPAA یا GDPR) نیاز دارید، یا می‌خواهید فرآیندها با متدولوژی اجایل/اسکرام مطابقت داشته باشند، یک Preset نصب می‌کنید. پریست‌ها قالب‌های پیش‌فرض <code>spec-template.md</code> یا <code>plan-template.md</code> را با نسخه‌های استاندارد سازمانی شما جایگزین (یا ترکیب) می‌کنند.
+      </p>
+    </div>
+
+    <div class="term-item">
+      <div class="term-head">
+        <span class="term-title">10. اکستنشن (Extension) چیست؟</span>
+        <span class="term-tag">افزودن قابلیت‌های جدید</span>
+      </div>
+      <p class="term-desc">
+        برخلاف پریست که فقط قالب‌های موجود را تغییر می‌دهد، <strong>اکستنشن (Extension)</strong> به معنای اضافه کردن <em>«قابلیت‌ها و دستورات کاملاً جدید»</em> است. به عنوان مثال، اکستنشن رسمی <code>bug</code> دستورات سه مرحله‌ای رفع باگ را اضافه می‌کند، اکستنشن <code>git</code> فرآیند خودکار ساخت برنچ و کامیت‌های منظم را به همراه می‌آورد، و اکستنشن <code>assess</code> امکان غربالگری ایده‌ها پیش از رسیدن به مرحله توسعه را فراهم می‌سازد.
+      </p>
+    </div>
+
+    <div class="term-item">
+      <div class="term-head">
+        <span class="term-title">11. باندل (Bundle) چیست؟</span>
+        <span class="term-tag">پکیج نقش‌محور تیمی</span>
+      </div>
+      <p class="term-desc">
+        <strong>باندل (Bundle)</strong> مجموعه‌ای گلچین‌شده و آماده از اکستنشن‌ها، پریست‌ها و پایپ‌لاین‌های اتوماسیون است که برای یک «نقش» مشخص در سازمان بسته‌بندی شده است. مثلاً «باندل مدیر محصول» یا «باندل تحلیل‌گر امنیت» یا «باندل توسعه‌دهنده فول‌استک». با نصب یک باندل، تمام ابزارهای مورد نیاز آن تخصص با یک دستور در پروژه مستقر می‌شوند.
+      </p>
+    </div>
+
+    <div class="term-item">
+      <div class="term-head">
+        <span class="term-title">12. ورک‌فلو (Workflow) چیست؟</span>
+        <span class="term-tag">اتوماسیون پایپ‌لاین</span>
+      </div>
+      <p class="term-desc">
+        ورک‌فلوها فایل‌های دانه‌بندی شده بر پایه <code>YAML</code> هستند که مراحل مختلف SDD را به یک پایپ‌لاین خودکار تبدیل می‌کنند. شما می‌توانید کارهای متوالی، انشعاب‌های شرطی، لوپ‌ها و مهم‌تر از همه <strong>درگاه‌های تأیید انسانی (Gate Steps)</strong> را تعریف کنید تا هوش مصنوعی در نقاط حساس منتظر تایید یا بازبینی شما بماند.
+      </p>
+    </div>
+
+    <div class="term-item">
+      <div class="term-head">
+        <span class="term-title">13. یکپارچه‌سازی ایجنت‌ها (Integrations)</span>
+        <span class="term-tag">پل ارتباطی</span>
+      </div>
+      <p class="term-desc">
+        ابزار Spec Kit به گونه‌ای طراحی شده که با بیش از ۳۰ ایجنت کدنویسی مختلف (از جمله GitHub Copilot، Claude Code، Google Antigravity / Gemini CLI، Cursor، Codex، Kimi و...) کار کند. ادغام‌ها مشخص می‌کنند فایل‌های پرامپت یا مهارت‌های ایجنت (Agent Skills) در کدام پوشه اختصاصی آن نرم‌افزار قرار بگیرند تا به راحتی در چت ادیتور قابل فراخوانی باشند.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- SECTION: section2_setup_cli.html -->
+<section id="setup-cli" class="doc-section">
+  <div class="section-header">
+    <div class="badge-tag">بخش دوم</div>
+    <h2>پیش‌نیازها، نصب و راه‌اندازی خط فرمان (CLI)</h2>
+    <p class="section-lead">
+      چگونه ابزار Specify CLI را در سیستم‌عامل خود نصب کنیم، سلامت ابزارها را بسنجیم و آن را برای ایجنت‌های هوش مصنوعی آماده‌سازی کنیم؟
+    </p>
+  </div>
+
+  <div class="content-block">
+    <h3>پیش‌نیازهای لازم</h3>
+    <p>
+      برای استفاده از Spec Kit روی سیستم‌عامل‌های ویندوز، لینوکس یا مک، به موارد زیر نیاز دارید:
+    </p>
+    <ul class="checklist-styled">
+      <li><strong>پایتون نسخه 3.11 یا بالاتر:</strong> موتور زیرین اسکریپت‌ها و هسته CLI با پایتون اجرا می‌شود.</li>
+      <li><strong>مدیر پکیج قدرتمند <code>uv</code> (توصیه‌شده):</strong> سریع‌ترین و بدون‌دردسرترین ابزار نصب ابزارهای پایتونی (<a href="https://docs.astral.sh/uv/" target="_blank" rel="noopener">نصب uv</a>). در صورت تمایل از <code>pipx</code> هم می‌توانید استفاده کنید.</li>
+      <li><strong>کنترل نسخه Git:</strong> برای ثبت تاریخچه و شاخه‌بندی نیازمندی‌ها.</li>
+      <li><strong>یک ایجنت هوش مصنوعی سازگار:</strong> حداقل یکی از ایجنت‌های پشتیبانی‌شده مانند GitHub Copilot (در VS Code)، Claude Code، Gemini CLI، Antigravity، Cursor یا Codex.</li>
+    </ul>
+  </div>
+
+  <div class="content-block">
+    <h3>۱. نصب ابزار Specify CLI</h3>
+    <p>
+      پیشنهاد رسمی و استاندارد گیت‌هاب، استفاده از دستور <code>uv tool</code> است که ابزار را در یک محیط ایزوله و سراسری نصب می‌کند تا در هر مسیری از ترمینال قابل دسترس باشد:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Bash / Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># نصب پایدار و سراسری از مخزن رسمی پایتون (PyPI)</span>
+uv tool install specify-cli
+
+<span class="code-comment"># یا نصب مستقیم آخرین نسخه از روی سورس مخزن گیت‌هاب</span>
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v1.0.0</code></pre>
+    </div>
+    <p>
+      اگر تمایل ندارید ابزاری به صورت سراسری نصب شود و فقط می‌خواهید به شکل موقت و تک‌باره دستوری را اجرا کنید، دستور <code>uvx</code> در خدمت شماست:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Bash / Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># اجرای موقت ابزار بدون نیاز به نصب در محیط سیستم</span>
+uvx specify-cli check</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3>۲. سنجش ابزارهای سیستم با دستور <code>specify check</code></h3>
+    <p>
+      این دستور سیستم شما را بدون نیاز به اتصال اینترنت اسکن می‌کند و نشان می‌دهد کدام ایجنت‌های هوش مصنوعی (مثل Claude، Gemini، Kimi و...) روی سیستم شما نصب و فعال هستند.
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># اسکن محلی سیستم و سنجش سلامت و آمادگی ایجنت‌های هوش مصنوعی</span>
+specify check</code></pre>
+    </div>
+    <div class="callout callout-note">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body">
+        <strong>چرا برای برخی ایجنت‌ها پیام Skip نمایش داده می‌شود؟</strong>
+        برخی ایجنت‌ها مثل Cursor یا اکستنشن‌های VS Code نیازی به ابزار خط فرمان مستقل ندارند و مستقیماً داخل محیط ادیتور فعالیت می‌کنند. ابزار <code>specify check</code> به طور هوشمند این دسته را به عنوان IDE-based در نظر می‌گیرد و نادیده رد می‌کند.
+      </div>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3>۳. بررسی نسخه و قابلیت‌ها با <code>specify version</code></h3>
+    <p>
+      برای مشاهده نسخه CLI، پلتفرم و قابلیت‌های فعال می‌توانید از این دستور استفاده کنید:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># نمایش شماره نسخه ابزار به همراه مشخصات سیستم‌عامل</span>
+specify version
+
+<span class="code-comment"># نمایش جدول فیچرهای فعال و قابلیت‌های محلی</span>
+specify version --features
+
+<span class="code-comment"># استخراج نسخه در قالب ساختاریافته JSON برای اسکریپت‌های اتوماسیون</span>
+specify version --features --json</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3>۴. مدیریت و ارتقای خودکار با <code>specify self</code></h3>
+    <p>
+      تیم Spec Kit دستورات اختصاصی داخلی برای بررسی و آپدیت خودکار CLI تدارک دیده است تا نیازی به تایپ دستورات طولانی نصب مجدد نداشته باشید:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># بررسی بدون تغییر (Read-Only) جهت اطلاع از انتشار نسخه جدیدتر</span>
+specify self check
+
+<span class="code-comment"># پیش‌نمایش متنی فرآیند ارتقا بدون اعمال هیچ تغییری در فایل‌ها</span>
+specify self upgrade --dry-run
+
+<span class="code-comment"># دانلود و نصب آنی آخرین نسخه منتشر شده از ابزار</span>
+specify self upgrade
+
+<span class="code-comment"># ارتقا یا دانگرید به یک برچسب یا تگ مشخص از نسخه</span>
+specify self upgrade --tag v1.0.0</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3>۵. انتخاب موتور اسکریپت با فلگ <code>--script</code></h3>
+    <p>
+      هنگام آماده‌سازی هر پروژه، فایل‌های خودکارسازی در پوشه <code>.specify/scripts/</code> کپی می‌شوند. شما می‌توانید زبان این اسکریپت‌ها را بر اساس سیستم‌عامل خود انتخاب کنید:
+    </p>
+    <div class="table-responsive">
+      <table class="doc-table">
+        <thead>
+          <tr>
+            <th>مقدار فلگ</th>
+            <th>سیستم‌عامل مقصد</th>
+            <th>توضیحات و کاربرد</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>--script sh</code></td>
+            <td>لینوکس و macOS</td>
+            <td>اسکریپت‌های Bash استاندارد. پیش‌فرض سیستم‌های یونیکسی.</td>
+          </tr>
+          <tr>
+            <td><code>--script ps</code></td>
+            <td>ویندوز (PowerShell)</td>
+            <td>اسکریپت‌های پاورشل (<code>.ps1</code>) بهینه‌شده برای محیط‌های ویندوزی.</td>
+          </tr>
+          <tr>
+            <td><code>--script py</code></td>
+            <td>مستقل از سیستم‌عامل (Cross-Platform)</td>
+            <td>اسکریپت‌های پایتونی تمیز که روی تمام سیستم‌عامل‌ها با رفتار یکسان اجرا می‌شوند.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3>۶. متغیرهای محیطی حیاتی (Environment Variables)</h3>
+    <p>
+      اگر می‌خواهید رفتار پیش‌فرض ابزار را در محیط CI/CD یا سیستم شخصی خود تنظیم کنید، متغیرهای زیر فوق‌العاده کاربردی هستند:
+    </p>
+    <div class="table-responsive">
+      <table class="doc-table">
+        <thead>
+          <tr>
+            <th>نام متغیر</th>
+            <th>کاربرد و رفتار</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>SPECKIT_INTEGRATION_DEFAULT</code></td>
+            <td>تعیین ایجنت هوش مصنوعی پیش‌فرض (مثلاً <code>copilot</code>، <code>claude</code>، یا <code>gemini</code>). اگر هنگام اجرای دستور <code>specify init</code> فلگ <code>--integration</code> را تعیین نکرده باشید، سیستم از این متغیر به عنوان ایجنت مقصد استفاده می‌کند.</td>
+          </tr>
+          <tr>
+            <td><code>SPECIFY_INIT_DIR</code></td>
+            <td>مخصوص ساختارهای Monorepo: تعیین ریشه پروژه فرعی بدون نیاز به تغییر پوشه با دستور <code>cd</code>.</td>
+          </tr>
+          <tr>
+            <td><code>SPECIFY_FEATURE_DIRECTORY</code></td>
+            <td>تعیین صریح پوشه فیچر فعال در <code>specs/</code> (اولویت بالاتر نسبت به فایل <code>.specify/feature.json</code>).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+
+<!-- SECTION: section3_step_by_step_new.html -->
+<section id="step-by-step-new" class="doc-section">
+  <div class="section-header">
+    <div class="badge-tag">بخش سوم</div>
+    <h2>آموزش گام به گام: ساخت یک پروژه جدید از صفر (Greenfield)</h2>
+    <p class="section-lead">
+      راهنمای جامع و مرحله‌به‌مرحله برای خلق یک محصول باکیفیت و بدون باگ، همراه با یک سناریوی واقعی: پروژه <strong>PhotoOrganizer</strong> (مدیریت هوشمند آلبوم‌های عکس محلی).
+    </p>
+  </div>
+
+  <div class="content-block">
+    <div class="diagram-caption">🗺️ نقشه تعاملی خط لوله SDD (روی هر گام کلیک کنید تا مستقیماً به دستور و راهنمای آن بروید):</div>
+    <div class="workflow-diagram">
+      <a href="#cmd-init" class="diagram-step">
+        <span class="step-num">0</span>
+        <span class="step-title">specify init</span>
+      </a>
+      <div class="diagram-arrow">➔</div>
+      <a href="#cmd-constitution" class="diagram-step">
+        <span class="step-num">1</span>
+        <span class="step-title">/constitution</span>
+      </a>
+      <div class="diagram-arrow">➔</div>
+      <a href="#cmd-specify" class="diagram-step">
+        <span class="step-num">2</span>
+        <span class="step-title">/specify</span>
+      </a>
+      <div class="diagram-arrow">➔</div>
+      <a href="#cmd-clarify" class="diagram-step">
+        <span class="step-num">3</span>
+        <span class="step-title">/clarify</span>
+      </a>
+      <div class="diagram-arrow">➔</div>
+      <a href="#cmd-plan" class="diagram-step">
+        <span class="step-num">4</span>
+        <span class="step-title">/plan</span>
+      </a>
+      <div class="diagram-arrow">➔</div>
+      <a href="#cmd-checklist" class="diagram-step">
+        <span class="step-num">5</span>
+        <span class="step-title">/checklist</span>
+      </a>
+      <div class="diagram-arrow">➔</div>
+      <a href="#cmd-tasks" class="diagram-step">
+        <span class="step-num">6</span>
+        <span class="step-title">/tasks</span>
+      </a>
+      <div class="diagram-arrow">➔</div>
+      <a href="#cmd-analyze" class="diagram-step">
+        <span class="step-num">7</span>
+        <span class="step-title">/analyze</span>
+      </a>
+      <div class="diagram-arrow">➔</div>
+      <a href="#cmd-implement" class="diagram-step">
+        <span class="step-num">8</span>
+        <span class="step-title">/implement</span>
+      </a>
+      <div class="diagram-arrow">➔</div>
+      <a href="#cmd-converge" class="diagram-step">
+        <span class="step-num">9</span>
+        <span class="step-title">/converge</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="content-block" id="cmd-init">
+    <h3>گام ۰: راه‌اندازی پروژه جدید در خط فرمان با <code>specify init</code></h3>
+    <p>
+      کار را در ترمینال شروع می‌کنیم. دستور <code>specify init</code> پوشه پروژه را می‌سازد، پوشه مخفی <code>.specify/</code> را با اسناد استاندارد پیکربندی می‌کند و دستورات لازم را در ایجنت هوش مصنوعی شما قرار می‌دهد.
+    </p>
+    <div class="callout callout-info">
+      <div class="callout-icon">🤖</div>
+      <div class="callout-body">
+        <strong>انتخاب مقدار مناسب برای فلگ <code>--integration</code>:</strong>
+        فلگ <code>--integration</code> تعیین می‌کند که دستورات، قالب‌ها و پرامپت‌های مهندسی برای کدام ایجنت هوش مصنوعی آماده‌سازی شوند. شما باید مقدار این فلگ را <strong>دقیقاً متناسب با ایجنتی که استفاده می‌کنید</strong> تنظیم نمایید (برای مثال: <code>copilot</code>، <code>claude</code>، <code>gemini</code>، <code>cursor</code>، <code>antigravity</code>، <code>codex</code> و...). اگر این پارامتر را در دستور ننویسید، خط فرمان Specify به صورت تعاملی از شما می‌خواهد که ایجنت خود را از لیست انتخاب کنید.
+      </div>
+    </div>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># ساخت پروژه جدید با تعیین ایجنت مدنظرتان (مقدار copilot را متناسب با ایجنت فعال خود تغییر دهید)</span>
+specify init photo-organizer --integration copilot --script py
+
+<span class="code-comment"># ورود به پوشه ریشه پروژه ایجاد شده</span>
+cd photo-organizer</code></pre>
+    </div>
+    <p>
+      حالا پوشه پروژه را در ادیتور خود (مثلاً VS Code یا Cursor) باز کرده و چت ایجنت هوش مصنوعی خود را فعال کنید. از این مرحله به بعد، مستقیماً داخل چت هوش مصنوعی دستورات را فراخوانی می‌کنید.
+    </p>
+    <div class="callout callout-tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <strong>شیوه فراخوانی دستورات در ادیتورها:</strong>
+        اکثر ادیتورها (مانند Copilot و Claude) از علامت اسلش مثل <code>/speckit.specify</code> استفاده می‌کنند. اگر از Codex یا ZCode استفاده می‌کنید از علامت دلار مثل <code>$speckit-specify</code> و در محیط‌هایی مثل Kimi از <code>/skill:speckit-specify</code> استفاده می‌شود.
+      </div>
+    </div>
+  </div>
+
+  <div class="content-block" id="cmd-constitution">
+    <h3>گام ۱: تدوین قانون اساسی پروژه با <code>/speckit.constitution</code></h3>
+    <p>
+      <strong>چرا این دستور مهم است؟</strong> این دستور معمولاً فقط <strong>یک‌بار</strong> در ابتدای تولد هر پروژه اجرا می‌شود. با این دستور، اصول غیرقابل‌تغییر معماری، خط قرمزهای کدنویسی و الگوهای کیفی را برای هوش مصنوعی مشخص می‌کنید تا در آینده سرخود رفتار نکند.
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">AI Agent Chat</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># تدوین قوانین اساسی و استانداردهای غیرقابل‌مذاکره پروژه در .specify/constitution.md</span>
+/speckit.constitution پروژه PhotoOrganizer باید کاملاً سبک و مستقل از کلود باشد. کلیه اطلاعات متادیتا در دیتابیس SQLite محلی نگهداری شود. هیچ لایبرری خارجی سنگینی به فرانت‌اند تحمیل نشود. رویکرد توسعه کاملاً ماژولار و مبتنی بر Clean Architecture باشد. برای تمامی توابع اصلی، تست واحد نوشته شود.</code></pre>
+    </div>
+    <p>
+      <strong>خروجی این گام:</strong> سند <code>.specify/constitution.md</code> ایجاد شده و تمام تصمیمات فنی آینده با این قوانین سنجیده می‌شوند.
+    </p>
+  </div>
+
+  <div class="content-block" id="cmd-specify">
+    <h3>گام ۲: تعریف نیازمندی‌های کاربر با <code>/speckit.specify</code></h3>
+    <p>
+      <strong>چرا این دستور مهم است؟</strong> این فرمان پاسخ می‌دهد که ما <strong>چه چیزی (What)</strong> می‌خواهیم بسازیم و <strong>چرا (Why)</strong> کاربران به آن نیاز دارند. 
+    </p>
+    <div class="callout callout-warning">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <strong>قانون طلایی مرحله Spec:</strong>
+        هرگز در این مرحله نگویید «با فلان نسخه پایتون یا ری‌اکت بساز»! اسامی ابزارها، پشته فنی، فریم‌ورک‌ها و کدهای برنامه‌نویسی در این مرحله اکیداً ممنوع است. فقط رفتار سیستم و تجربه کاربر را تشریح کنید.
+      </div>
+    </div>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">AI Agent Chat</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># تعریف شرح نیازمندی‌های کاربر و سناریوهای پذیرش (بدون ذکر نام تکنولوژی‌ها و کد)</span>
+/speckit.specify می‌خواهم اپلیکیشنی بسازم که تصاویر موجود در کامپیوتر کاربر را در قالب آلبوم‌های مرتب بر اساس تاریخ دسته‌بندی کند. کاربر باید بتواند آلبوم‌ها را با کشیدن و رها کردن (Drag and Drop) روی صفحه اصلی مرتب کند. آلبوم‌ها نباید تودرتو باشند. با کلیک روی هر آلبوم، عکس‌های داخل آن به صورت کاشی‌وار (Tile Preview) نمایش داده شوند و کاربر بتواند نام آلبوم را تغییر داده و تصاویر را به آلبوم دیگری منتقل کند.</code></pre>
+    </div>
+    <p>
+      <strong>خروجی این گام:</strong> پوشه <code>specs/001-photo-organizer/</code> به شکل خودکار ایجاد شده و فایل <code>spec.md</code> شامل شرح فیچر، پرسونای کاربر، داستان‌های کاربری (User Stories) و معیارهای پذیرش تولید می‌شود. نقاط مبهم با برچسب <code>[NEEDS CLARIFICATION]</code> مشخص می‌شوند.
+    </p>
+  </div>
+
+  <div class="content-block" id="cmd-clarify">
+    <h3>گام ۳: رفع ابهامات نیازمندی با <code>/speckit.clarify</code></h3>
+    <p>
+      <strong>چرا این دستور مهم است؟</strong> اگر قبل از طراحی فنی ابهامی در نیازمندی‌ها وجود داشته باشد، هوش مصنوعی مجبور به حدس زدن می‌شود. این دستور ایجنت را وادار می‌کند تا سوالات کلیدی مطرح کرده و تصمیمات را در متن نیازمندی‌ها درج کند.
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">AI Agent Chat</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># سوال‌پرسیدن هوش مصنوعی از کاربر جهت شفاف‌سازی نقاط تاریک و حذف فرضیات اشتباه</span>
+/speckit.clarify روی نحوه ذخیره‌سازی ترتیب آلبوم‌ها و سناریوی مدیریت تصاویر نامعتبر یا خراب تمرکز کن.</code></pre>
+    </div>
+    <p>
+      ایجنت چند سوال شفاف (حداکثر تا ۵ سوال) از شما می‌پرسد (مثلاً: آیا جابه‌جایی آلبوم‌ها در سشن بعدی باید حفظ شود؟ اگر یک فایل تصویر به دلیل خرابی باز نشد چه اتفاقی بیفتد؟). پس از اینکه پاسخ دادید، ایجنت پاسخ‌های شما را مستقیماً در متن <code>spec.md</code> ادغام می‌کند.
+    </p>
+  </div>
+
+  <div class="content-block" id="cmd-plan">
+    <h3>گام ۴: طراحی نقشه معماری فنی با <code>/speckit.plan</code></h3>
+    <p>
+      <strong>چرا این دستور مهم است؟</strong> حالا که نیازمندی‌ها قطعی و بدون ابهام شد، نوبت این است که مشخص کنیم <strong>چگونه (How)</strong> می‌خواهیم آن را بسازیم. اینجا دقیقاً زمان بیان تکنولوژی‌هاست.
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">AI Agent Chat</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># تدوین معماری فنی، انتخاب زبان، فریم‌ورک‌ها، مدل دیتابیس و قراردادهای API</span>
+/speckit.plan سمت بک‌اند با پایتون ۳.۱۱ و فریم‌ورک FastAPI پیاده‌سازی شود. دیتابیس SQLite با جداول albums و photos طراحی شود. برای تولید تصاویر بندانگشتی (Thumbnail) از کتابخانه Pillow استفاده شود. سمت کلاینت با HTML5 خام، CSS Grid و جاوااسکریپت وانیلا (بدون هیچ فریم‌ورک اضافی) طراحی شود. قراردادهای API شامل اندپوینت‌های REST برای مدیریت آلبوم‌ها و عکس‌ها ایجاد شود.</code></pre>
+    </div>
+    <p>
+      <strong>خروجی‌های تولید شده در <code>specs/001-photo-organizer/</code>:</strong>
+    </p>
+    <ul class="checklist-styled">
+      <li><code>plan.md</code>: تشریح ساختار ماژول‌ها، معماری نرم‌افزار و تصمیمات مهندسی.</li>
+      <li><code>data-model.md</code>: ساختار جداول دیتابیس، فیلدها، نوع داده‌ها و روابط.</li>
+      <li><code>contracts/</code>: قراردادهای دقیق ورودی/خروجی API.</li>
+      <li><code>research.md</code>: بررسی انتخاب کتابخانه‌ها و سبک‌ترین الگوها.</li>
+    </ul>
+  </div>
+
+  <div class="content-block" id="cmd-checklist">
+    <h3>گام ۵: ایجاد چک‌لیست کنترل کیفیت با <code>/speckit.checklist</code></h3>
+    <p>
+      <strong>چرا این دستور مهم است؟</strong> قبل از اینکه ایجنت کدی بنویسد، این دستور یک چک‌لیست تحلیلی از ابعاد کیفی، شرایط مرزی و سناریوهای استثنا می‌سازد (همان Unit Test برای نیازمندی‌ها).
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">AI Agent Chat</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># تولید چک‌لیست تست‌پذیری نیازمندی‌ها و سناریوهای لبه‌ای برای ممیزی انسانی</span>
+/speckit.checklist روی امنیت مسیرهای فایل‌های محلی و جلوگیری از مسدود شدن UI در آلبوم‌های دارای بیش از هزار عکس تمرکز کن.</code></pre>
+    </div>
+    <div class="callout callout-important">
+      <div class="callout-icon">🚨</div>
+      <div class="callout-body">
+        <strong>اخطار جدی برای ایجنت‌های هوش مصنوعی:</strong>
+        چک‌لیست‌های این بخش متعلق به بازبین انسانی (Reviewer-Owned) هستند. ایجنت هوش مصنوعی به هیچ عنوان اجازه ندارد خودسرانه موارد چک‌لیست را به حالت <code>[x]</code> تیک بزند تا از گیت‌های نظارتی فرار کند!
+      </div>
+    </div>
+  </div>
+
+  <div class="content-block" id="cmd-tasks">
+    <h3>گام ۶: تفکیک به وظایف و تسک‌های مهندسی با <code>/speckit.tasks</code></h3>
+    <p>
+      <strong>چرا این دستور مهم است؟</strong> یک معماری عالی بدون وظایف خرد و زمان‌بندی‌شده به شکست می‌انجامد. دستور <code>/speckit.tasks</code> تمام اسناد مراحل قبل را اسکن کرده و فایل <code>tasks.md</code> را فازبندی شده می‌سازد:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">AI Agent Chat</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># شکستن معماری و نیازمندی‌ها به وظایف مهندسی فازبندی‌شده در tasks.md</span>
+/speckit.tasks</code></pre>
+    </div>
+    <p>
+      <strong>ساختار فایل <code>tasks.md</code>:</strong>
+    </p>
+    <ul class="tree-list">
+      <li><strong>Phase 1: Setup</strong> (پیکربندی ساختار پروژه، تنظیم requirements.txt، لینترها)</li>
+      <li><strong>Phase 2: Foundational</strong> (ساخت جداول SQLite، مدل‌های Pydantic، کلاس خواندن عکس‌ها)</li>
+      <li><strong>Phase 3: User Story 1</strong> (ایجاد اندپوینت‌های آلبوم و رندرهای اولیه)</li>
+      <li><strong>Phase 4: User Story 2</strong> (قابلیت جابه‌جایی Drag and Drop و ذخیره ترتیب) <code>[P]</code></li>
+      <li><strong>Phase 5: User Story 3</strong> (تولید پیش‌نمایش بندانگشتی تصاویر) <code>[P]</code></li>
+      <li><strong>Phase 6: Polish & Verification</strong> (مدیریت خطاهای فایل، بررسی سرعت، بهینه‌سازی نهایی)</li>
+    </ul>
+  </div>
+
+  <div class="content-block" id="cmd-analyze">
+    <h3>گام ۷: تحلیل یکپارچگی قبل از کدنویسی با <code>/speckit.analyze</code></h3>
+    <p>
+      <strong>چرا این دستور مهم است؟</strong> این دستور کاملاً خواندنی (Read-Only) است و بدون تغییر کدها، سه سند <code>spec.md</code>، <code>plan.md</code> و <code>tasks.md</code> را با هم مقایسه می‌کند تا مطمئن شود هیچ تناقضی وجود ندارد.
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">AI Agent Chat</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># ممیزی جامع و تطابق اسناد با یکدیگر جهت جلوگیری از تناقض پیش از کدنویسی</span>
+/speckit.analyze</code></pre>
+    </div>
+    <p>
+      اگر ایجنت متوجه شود تسکی نوشته شده که در نیازمندی‌ها نبوده، یا انتخابی در معماری با قانون اساسی مغایرت دارد، سریعاً گزارش خطا می‌دهد. شما باید خطای مبدا را اصلاح کنید و دوباره آنالیز بگیرید تا پروژه کاملاً سبز و آماده شود.
+    </p>
+  </div>
+
+  <div class="content-block" id="cmd-implement">
+    <h3>گام ۸: پیاده‌سازی و ساخت نرم‌افزار با <code>/speckit.implement</code></h3>
+    <p>
+      <strong>چرا این دستور مهم است؟</strong> این دستور موتور تولید کد را روشن می‌کند تا تسک‌های داخل <code>tasks.md</code> را یکی پس از دیگری پیاده‌سازی و تست کند.
+    </p>
+    <div class="callout callout-tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <strong>ترفند حرفه‌ای برای پروژه‌های بزرگ:</strong>
+        به جای اینکه بگویید «کل پروژه را بساز»، پیاده‌سازی را به صورت فازبندی‌شده به ایجنت محول کنید تا کانتکست ایجنت خسته نشود و خطا به صفر برسد:
+      </div>
+    </div>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">AI Agent Chat</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># اجرای گام‌به‌گام: ابتدا راه‌اندازی زیرساخت، دیتابیس و تست‌های اولیه</span>
+/speckit.implement فاز ۱ (Setup) و فاز ۲ (Foundational) را پیاده‌سازی کن و تست‌های اولیه اتصال دیتابیس را انجام بده.
+
+<span class="code-comment"># پس از تایید فاز قبل: ساخت قابلیت‌های بصری و منطق تجاری کاربر</span>
+/speckit.implement حالا فاز ۳ و ۴ مربوط به ساخت آلبوم و Drag and Drop را اجرا کن.</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block" id="cmd-converge">
+    <h3>گام ۹: ارزیابی همگرایی نهایی با <code>/speckit.converge</code></h3>
+    <p>
+      <strong>چرا این دستور مهم است؟</strong> کار کدنویسی تمام شده، اما از کجا مطمئن شویم چیزی از قلم نیفتاده؟ دستور <code>/speckit.converge</code> کل ریپازیتوری را با مشخصات اولیه مطابقت می‌دهد:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">AI Agent Chat</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># سنجش انطباق ۱۰۰ درصدی کدهای پیاده‌شده با مشخصات، پلان و معیارهای پذیرش</span>
+/speckit.converge</code></pre>
+    </div>
+    <p>
+      <strong>دو خروجی ممکن:</strong>
+    </p>
+    <div class="grid-cards">
+      <div class="concept-card border-green">
+        <div class="card-icon">✅</div>
+        <h4>وضعیت Converged (پروژه آماده است!)</h4>
+        <p>پیامی با متن <code>Converged — the implementation satisfies the spec, plan, and tasks</code> دریافت می‌کنید. یعنی تمام بندها با موفقیت پیاده شده و می‌توانید با خیال راحت کد را Merge کنید.</p>
+      </div>
+      <div class="concept-card border-amber">
+        <div class="card-icon">🔄</div>
+        <h4>وضعیت Tasks Appended (کارهای جامانده)</h4>
+        <p>اگر ایجنت نقصی پیدا کند، دست به حذف یا دستکاری کد نمی‌زند؛ بلکه کمبودها را به عنوان تسک جدید در بخش Convergence به انتهای <code>tasks.md</code> اضافه می‌کند. شما با <code>/speckit.implement</code> آنها را حل کرده و دوباره <code>/speckit.converge</code> می‌زنید تا سبز شود.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- SECTION: section4_step_by_step_existing.html -->
+<section id="step-by-step-existing" class="doc-section">
+  <div class="section-header">
+    <div class="badge-tag">بخش چهارم</div>
+    <h2>آموزش گام به گام: افزودن Spec Kit به پروژه موجود (Brownfield)</h2>
+    <p class="section-lead">
+      چگونه بدون کوچک‌ترین آسیب به کدهای قدیمی یک پروژه در حال اجرا، نظم و دقت Spec-Driven Development را برای توسعه فیچرهای جدید اضافه کنیم؟
+    </p>
+  </div>
+
+  <div class="content-block">
+    <h3>چالش‌های پروژه‌های در حال اجرا و راه‌حل Spec Kit</h3>
+    <p>
+      شروع یک پروژه از صفر همیشه آسان است؛ اما در دنیای واقعی اکثر ما با پروژه‌های چندساله، پایگاه کدهای بزرگ (Legacy Codebases) و معماری‌های تثبیت‌شده کار می‌کنیم. بزرگ‌ترین ترس توسعه‌دهندگان در مواجهه با هوش مصنوعی روی پروژه‌های قدیمی این است: <em>«نکند ایجنت کل کدهای قبلی را به هم بریزد، کتابخانه‌ها را بیجا آپگرید کند یا ساختار پروژه را از بین ببرد؟»</em>
+    </p>
+    <p>
+      ابزار Spec Kit برای حل این نگرانی دارای تدابیر امنیتی قدرتمندی است:
+    </p>
+    <ul class="checklist-styled">
+      <li><strong>مدیریت فایل‌ها با هش SHA-256:</strong> فایل <code>speckit.manifest.json</code> دقیقاً می‌داند کدام فایل‌ها متعلق به Spec Kit هستند و به هیچ فایل دیگری در پروژه شما دست نمی‌زند.</li>
+      <li><strong>ایزوله‌سازی کامل در پوشه <code>specs/</code>:</strong> تمام اسناد مشخصات، نقشه‌ها و تسک‌های هر فیچر جدید در یک پوشه جداگانه قرار می‌گیرند.</li>
+      <li><strong>قانون اساسی تطبیق‌پذیر:</strong> شما در <code>constitution.md</code> قفل می‌کنید که ساختار پروژه قبلی نباید ریفکتور شود.</li>
+    </ul>
+  </div>
+
+  <div class="content-block">
+    <div class="diagram-caption">🗺️ نقشه تعاملی چرخه اتصال به پروژه موجود (Brownfield Pipeline):</div>
+    <div class="workflow-diagram">
+      <a href="#cmd-bf-init" class="diagram-step">
+        <span class="step-num">1</span>
+        <span class="step-title">specify init --here</span>
+      </a>
+      <div class="diagram-arrow">➔</div>
+      <a href="#cmd-bf-constitution" class="diagram-step">
+        <span class="step-num">2</span>
+        <span class="step-title">/constitution (حفاظت)</span>
+      </a>
+      <div class="diagram-arrow">➔</div>
+      <a href="#cmd-bf-specify" class="diagram-step">
+        <span class="step-num">3</span>
+        <span class="step-title">/specify (فیچر جدید)</span>
+      </a>
+      <div class="diagram-arrow">➔</div>
+      <a href="#cmd-bf-plan" class="diagram-step">
+        <span class="step-num">4</span>
+        <span class="step-title">/plan (اتصال امن)</span>
+      </a>
+      <div class="diagram-arrow">➔</div>
+      <a href="#cmd-bf-tasks-implement" class="diagram-step">
+        <span class="step-num">5</span>
+        <span class="step-title">/tasks & implement</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="content-block" id="cmd-bf-init">
+    <h3>گام ۱: استقرار در پوشه جاری با فلگ <code>--here</code> و <code>--force</code></h3>
+    <p>
+      به ریشه پروژه موجود خود بروید و در ترمینال دستور زیر را اجرا کنید. فلگ <code>--here</code> به CLI می‌گوید که در همین پوشه بماند و پوشه جدید نسازد؛ فلگ <code>--force</code> تایید می‌کند که ادغام با فایل‌های موجود بلامانع است:
+    </p>
+    <div class="callout callout-info">
+      <div class="callout-icon">🤖</div>
+      <div class="callout-body">
+        <strong>انتخاب مقدار مناسب برای <code>--integration</code>:</strong>
+        توجه داشته باشید که مقدار <code>copilot</code> در دستور زیر صرفاً یک مثال است. شما باید این مقدار را <strong>دقیقاً متناسب با ایجنتی که در این پروژه استفاده می‌کنید</strong> (مانند <code>claude</code>، <code>gemini</code>، <code>cursor</code>، <code>antigravity</code> و...) جایگزین نمایید.
+      </div>
+    </div>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># ورود به ریشه پروژه موجود (مثال: یک پروژه بک‌اند Node.js/Express)</span>
+cd /path/to/my-existing-app
+
+<span class="code-comment"># راه‌اندازی ایمن در پوشه موجود (مقدار --integration copilot را بر اساس ایجنت فعال خود تغییر دهید)</span>
+specify init --here --force --integration copilot --script py</code></pre>
+    </div>
+    <div class="callout callout-info">
+      <div class="callout-icon">🛡️</div>
+      <div class="callout-body">
+        <strong>آیا کدهای قبلی من بازنویسی می‌شوند؟</strong>
+        خیر! این دستور فقط پوشه داخلی <code>.specify/</code> و تنظیمات ادغام ایجنت را در پروژه شما ایجاد می‌کند و هیچ تغییری در فایل‌های سورس کد، <code>package.json</code> یا ریپازیتوری فعلی شما اعمال نخواهد کرد.
+      </div>
+    </div>
+  </div>
+
+  <div class="content-block" id="cmd-bf-constitution">
+    <h3>گام ۲: تنظیم قانون اساسی بر پایه معماری موجود</h3>
+    <p>
+      حالا چت ایجنت هوش مصنوعی خود را در ادیتور باز کنید. اولین کاری که باید بکنید، اعلام خط‌مشی‌های پروژه موجود به هوش مصنوعی است تا سبک کدنویسی قبلی را محترم بشمارد:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">AI Agent Chat</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># وضع قوانین حفاظتی جهت احترام به معماری فعلی و جلوگیری از تغییر کدهای قدیمی</span>
+/speckit.constitution این پروژه یک سامانه بزرگ Node.js با Express و دیتابیس MongoDB است. کدهای موجود به هیچ عنوان نباید ریفکتور شوند یا ساختار آنها دستخوش تغییر ناخواسته شود. هر فیچر جدید باید به صورت یک ماژول مستقل در پوشه src/modules/ پیاده‌سازی شده و از استانداردهای اعتبارسنجی Zod و خطایابی متمرکز موجود در پروژه تبعیت کند. پکیج‌های npm موجود را ارتقا نده و پکیج جدیدی بدون دلیل قانع‌کننده اضافه نکن.</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block" id="cmd-bf-specify">
+    <h3>گام ۳: تعریف فیچر جدید با <code>/speckit.specify</code></h3>
+    <p>
+      فرض کنید می‌خواهید یک سیستم «ارسال ایمیل اطلاع‌رسانی تراکنش‌ها» را به پروژه فعلی اضافه کنید. بدون نگرانی از کدهای دیگر، نیازمندی را تعریف کنید:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">AI Agent Chat</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># تعریف ایزوله فیچر جدید در پوشه مستقل specs بدون دخالت در منطق سایر سرویس‌ها</span>
+/speckit.specify می‌خواهیم قابلیت ارسال ایمیل فاکتور و اطلاع‌رسانی خرید به کاربران اضافه شود. پس از هر تراکنش موفق، یک ایمیل با قالب HTML شامل نام کاربر، شناسه فاکتور، اقلام خریداری شده و مبلغ کل ارسال شود. اگر سرویس ایمیل در دسترس نبود، ایمیل در صف تلاش مجدد قرار بگیرد و خطای کریتیکال ثبت شود. کاربر نباید معطل ارسال ایمیل بماند (فرآیند کاملاً ناهمگام و Asynchronous باشد).</code></pre>
+    </div>
+    <p>
+      پوشه <code>specs/001-transaction-emails/</code> ساخته شده و فایل‌های این قابلیت کاملاً مجزا در آنجا قرار می‌گیرند.
+    </p>
+  </div>
+
+  <div class="content-block" id="cmd-bf-plan">
+    <h3>گام ۴: طراحی معماری با تکیه بر زیرساخت فعلی در <code>/speckit.plan</code></h3>
+    <p>
+      در فاز پلان، صراحتاً به ایجنت می‌گویید از کدام بخش‌های کدهای موجود استفاده کند و نقاط اتصال (Integration Points) کجاست:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">AI Agent Chat</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># اتصال فیچر به کتابخانه‌ها، اتصالات دیتابیس و صفوف پیام موجود بدون افزودن پکیج اضافی</span>
+/speckit.plan برای ارسال ناهمگام از صف موجود BullMQ و ردیس پروژه در مسیر src/lib/queue.js استفاده کن. اتصال به دیتابیس از همان mongoose.connection پروژه انجام شود. برای قالب ایمیل از ماژول Handlebars استفاده کن. برای ارسال نهایی از پکیج nodemailer که در پروژه نصب است کمک بگیر. هیچ پکیج جدیدی به package.json اضافه نکن.</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block" id="cmd-bf-tasks-implement">
+    <h3>گام ۵: استخراج تسک‌ها، تحلیل و اجرای محافظه‌کارانه</h3>
+    <p>
+      روال استاندارد SDD را طی کنید:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">AI Agent Chat</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># ۱. استخراج تسک‌های فازبندی‌شده</span>
+/speckit.tasks
+
+<span class="code-comment"># ۲. اعتبارسنجی عدم تضاد معماری جدید با اصول تثبیت‌شده</span>
+/speckit.analyze
+
+<span class="code-comment"># ۳. پیاده‌سازی کنترل‌شده همراه با راستی‌آزمایی تست‌های قبلی پروژه</span>
+/speckit.implement فقط ماژول email.worker.js و قالب‌های ایمیل را بساز و هوک اتصال به مسیر تراکنش‌ها را اضافه کن. تست‌های قبلی پروژه را اجرا کن تا مطمئن شوی چیزی خراب نشده است.
+
+<span class="code-comment"># ۴. اعتبارسنجی و تایید همگرایی نهایی</span>
+/speckit.converge</code></pre>
+    </div>
+    <p>
+      به این ترتیب، قابلیت جدید با بالاترین استاندارد مهندسی، اسناد تست‌شده و شفافیت کامل در دل پروژه قدیمی شما جای گرفت، بدون اینکه لحظه‌ای روند سرویس‌دهی سیستم متوقف یا دستخوش باگ رگرسیون شود.
+    </p>
+  </div>
+</section>
+
+
+<!-- SECTION: section5_extra_commands.html -->
+<section id="extra-commands" class="doc-section">
+  <div class="section-header">
+    <div class="badge-tag">بخش پنجم</div>
+    <h2>دایره‌المعارف دستورات تکمیلی و پیشرفته (خارج از مسیر گام به گام)</h2>
+    <p class="section-lead">
+      آشنایی با تمام ابزارهای جانبی، اکستنشن‌های اختصاصی، مدیریت پریست‌ها، ورک‌فلوهای خودکار و دستوراتی که در فرآیند عادی کدنویسی حضور نداشتند اما تسلط بر آنها شما را به یک متخصص تمام‌عیار تبدیل می‌کند.
+    </p>
+  </div>
+
+  <!-- 1. Bug Extension -->
+  <div class="content-block" id="cmd-ext-bug">
+    <div class="category-pill">افزونه رسمی ۱</div>
+    <h3>پایپ‌لاین تریاژ و رفع باگ (Bug Triage & Fix Extension)</h3>
+    <p>
+      وقتی یک باگ در نرم‌افزار پیش می‌آید، بزرگ‌ترین اشتباه این است که ارور را کپی کنید و در چت هوش مصنوعی بگویید: <em>«این خطا را سریع فیکس کن!»</em>. این کار معمولاً به تغییرات کورکورانه و خراب شدن سایر بخش‌ها منتهی می‌شود.
+      اکستنشن رسمی <code>bug</code> یک فرآیند سه مرحله‌ای تضمین‌شده به نام <strong>Assess ➔ Fix ➔ Test</strong> را در پوشه <code>.specify/bugs/&lt;slug&gt;/</code> پیاده می‌کند.
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Terminal (یک‌بار نصب در پروژه)</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># نصب اکستنشن رسمی تریاژ و رفع مهندسی باگ در پروژه</span>
+specify extension add bug</code></pre>
+    </div>
+
+    <h4>۱. دستور ارزیابی باگ: <code>/speckit.bug.assess</code></h4>
+    <p>
+      این دستور کاملاً <strong>فقط-خواندنی (Read-Only)</strong> است و هیچ خطی از کد را دستکاری نمی‌کند. متن خطا، استک تریس (Stack Trace) یا لینک Issue را به آن می‌دهید؛ ایجنت ریشه مشکل را پیدا کرده، فایل‌های مظنون را مشخص می‌کند و پیشنهاد اصلاحیه را در فایل <code>assessment.md</code> ثبت می‌نماید:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">AI Agent Chat</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># تحلیل ریشه‌ای خطا بدون دستکاری کدها و ثبت گزارش ارزیابی در assessment.md</span>
+/speckit.bug.assess "TypeError: Cannot read properties of undefined (reading 'token') at /auth/callback" slug=login-token-crash</code></pre>
+    </div>
+
+    <h4>۲. دستور اعمال فیکس: <code>/speckit.bug.fix</code></h4>
+    <p>
+      این <strong>تنها</strong> دستوری است که اجازه ویرایش کدهای پروژه را دارد. ایجنت موظف است دقیقاً همان فایل‌ها و همان اصلاحیه‌ای که در فاز ارزیابی تصویب شده را اعمال کند و تغییراتش را در فایل <code>fix.md</code> لاگ کند:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">AI Agent Chat</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># پیاده‌سازی راه‌حل مصوب روی کدهای منبع بر اساس سند ارزیابی</span>
+/speckit.bug.fix slug=login-token-crash</code></pre>
+    </div>
+
+    <h4>۳. دستور سنجش و راستی‌آزمایی: <code>/speckit.bug.test</code></h4>
+    <p>
+      ایجنت تست‌های پروژه و سناریوی بازتولید باگ را اجرا می‌کند تا مطمئن شود مشکل واقعاً ریشه‌کن شده است. خروجی در فایل <code>test.md</code> ثبت می‌شود و وضعیت نهایی به صورت صریح و غیرقابل‌اغراق اعلام می‌گردد (یکی از سه حالت: <code>verified</code>، <code>partial</code> یا <code>failed</code>):
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">AI Agent Chat</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># اجرای تست‌های واحد و راستی‌آزمایی برطرف‌شدن قطعی باگ در test.md</span>
+/speckit.bug.test slug=login-token-crash</code></pre>
+    </div>
+  </div>
+
+  <!-- 2. Assess Extension -->
+  <div class="content-block" id="cmd-ext-assess">
+    <div class="category-pill">افزونه رسمی ۲</div>
+    <h3>پایپ‌لاین غربالگری و سنجش ایده‌ها (Assess Extension)</h3>
+    <p>
+      قبل از اینکه یک ایده خام وارد مرحله گران‌قیمت کدنویسی شود، باید اعتبار آن سنجیده شود. اکستنشن <code>assess</code> یک پایپ‌لاین ۵ مرحله‌ای برای کشف، اعتبارسنجی و تصمیم‌گیری نهایی (Go / Kill) در پوشه <code>.specify/assessments/&lt;slug&gt;/</code> فراهم می‌کند.
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># نصب اکستنشن ۵ مرحله‌ای غربالگری، تحقیقات و اعتبارسنجی ایده‌ها</span>
+specify extension add assess</code></pre>
+    </div>
+    <div class="table-responsive">
+      <table class="doc-table">
+        <thead>
+          <tr>
+            <th>دستور</th>
+            <th>کاربرد و هدف</th>
+            <th>مثال</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>/speckit.assess.intake</code></td>
+            <td>ثبت ایده خام، لینک تیکت یا بازخورد مشتری در یک سند ورودی تمیز.</td>
+            <td><code>/speckit.assess.intake "اضافه کردن پشتیبانی آفلاین برای کاربران موبایل" slug=offline-mode</code></td>
+          </tr>
+          <tr>
+            <td><code>/speckit.assess.research</code></td>
+            <td>بررسی وضعیت بازار، نمونه‌های مشابه، رقبا و چالش‌های فنی ایده.</td>
+            <td><code>/speckit.assess.research slug=offline-mode</code></td>
+          </tr>
+          <tr>
+            <td><code>/speckit.assess.define</code></td>
+            <td>تعریف دقیق پرسونای مخاطب، بیانیه مشکل، شاخص‌های موفقیت (KPI) و مواردی که نباید انجام شوند (Non-Goals).</td>
+            <td><code>/speckit.assess.define slug=offline-mode</code></td>
+          </tr>
+          <tr>
+            <td><code>/speckit.assess.shape</code></td>
+            <td>ترسیم شکل راه‌حل‌های بالقوه، برآورد هزینه/زمان (Appetite) و تریدآف‌ها بدون ورود به کدنویسی.</td>
+            <td><code>/speckit.assess.shape slug=offline-mode</code></td>
+          </tr>
+          <tr>
+            <td><code>/speckit.assess.decide</code></td>
+            <td>اتخاذ تصمیم نهایی: اگر <strong>go</strong> باشد بلافاصله به <code>/speckit.specify</code> پاس داده می‌شود؛ اگر <strong>kill</strong> باشد پرونده با ذکر دلایل آرشیو می‌شود.</td>
+            <td><code>/speckit.assess.decide slug=offline-mode</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 3. Git Extension -->
+  <div class="content-block" id="cmd-ext-git">
+    <div class="category-pill">افزونه رسمی ۳</div>
+    <h3>شاخه‌بندی خودکار گیت (Git Extension)</h3>
+    <p>
+      به طور پیش‌فرض Spec Kit بدون گیت هم کار می‌کند؛ اما با نصب اکستنشن <code>git</code>، ایجاد برنچ‌های شماره‌دار (مثل <code>001-user-auth</code>)، اعتبارسنجی نام برنچ‌ها و هوک‌های کامیت خودکار بعد از هر مرحله از SDD فعال می‌شوند.
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">دستورات کمکی Git</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># ۱. نصب افزونه مدیریت گیت در پروژه</span>
+specify extension add git
+
+<span class="code-comment"># ۲. راه‌اندازی ریپازیتوری محلی به همراه gitignore و ثبت کامیت نخستین</span>
+/speckit.git.initialize
+
+<span class="code-comment"># ۳. ایجاد برنچ جدید برای فیچر با نام‌گذاری استاندارد و پیشوند شماره‌دار</span>
+/speckit.git.feature user-auth
+
+<span class="code-comment"># ۴. بررسی تطابق نام شاخه جاری با الگوهای مجاز مخزن</span>
+/speckit.git.validate
+
+<span class="code-comment"># ۵. ثبت خودکار کامیت با پیام ساختاریافته مطابق با پیشرفت مرحله SDD</span>
+/speckit.git.commit "feat: add spec and initial plan for user authentication"
+
+<span class="code-comment"># ۶. تنظیم و راستی‌آزمایی اتصال آدرس ریموت در گیت‌هاب</span>
+/speckit.git.remote</code></pre>
+    </div>
+  </div>
+
+  <!-- 4. Agent Context Extension -->
+  <div class="content-block" id="cmd-ext-agent-context">
+    <div class="category-pill">افزونه رسمی ۴</div>
+    <h3>مدیریت کانتکست ایجنت (Agent-Context Extension)</h3>
+    <p>
+      ایجنت‌ها برای اینکه مسیر را گم نکنند، به فایل‌هایی مانند <code>AGENTS.md</code> یا <code>CLAUDE.md</code> یا <code>.github/copilot-instructions.md</code> تکیه می‌کنند. اکستنشن <code>agent-context</code> تضمین می‌کند هر زمان مشخصات یا نقشه‌ای جدید تعریف کردید، این فایل‌ها به صورت خودکار با مسیرهای فیچر فعال آپدیت شوند.
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">دستور به‌روزرسانی کانتکست</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># نصب افزونه به‌روزرسانی خودکار کانتکست ایجنت‌ها</span>
+specify extension add agent-context
+
+<span class="code-comment"># همگام‌سازی دستی راهنماهای دستورالعمل هوش مصنوعی با فیچر فعال جاری</span>
+/speckit.agent-context.update</code></pre>
+    </div>
+  </div>
+
+  <!-- 5. Integration Management -->
+  <div class="content-block" id="cmd-integration">
+    <div class="category-pill">مدیریت ایجنت‌ها</div>
+    <h3>فرمان‌های مدیریت یکپارچه‌سازی (<code>specify integration</code>)</h3>
+    <p>
+      شما می‌توانید در یک پروژه ایجنت‌های متعددی را فعال کنید یا بین آنها جابه‌جا شوید:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># مشاهده لیست تمام ایجنت‌های پشتیبانی‌شده و وضعیت نصب محلی آنها</span>
+specify integration list
+
+<span class="code-comment"># مشاهده لیست کامل ایجنت‌های موجود در کاتالوگ ابری</span>
+specify integration list --catalog
+
+<span class="code-comment"># بررسی سلامت یکپارچه‌سازی و شناسایی فایل‌های مفقود یا دستکاری‌شده</span>
+specify integration status
+
+<span class="code-comment"># استخراج وضعیت سلامت در قالب ساختاریافته JSON</span>
+specify integration status --json
+
+<span class="code-comment"># نصب و فعال‌سازی یک ایجنت هوش مصنوعی جدید در کنار بقیه</span>
+specify integration install gemini --script py
+
+<span class="code-comment"># تغییر ایجنت فعال پیش‌فرض بدون پاک‌شدن تنظیمات سایر ایجنت‌ها</span>
+specify integration use gemini
+
+<span class="code-comment"># حذف کامل فایل‌های اتصال یکپارچه‌سازی یک ایجنت خاص</span>
+specify integration uninstall claude
+
+<span class="code-comment"># تغییر آنی و جابه‌جایی سریع از یک ایجنت به ایجنت دیگر</span>
+specify integration switch copilot
+
+<span class="code-comment"># ارتقای فایل‌های پرامپت و قالب ایجنت پس از به‌روزرسانی هسته Spec Kit</span>
+specify integration upgrade copilot --force</code></pre>
+    </div>
+  </div>
+
+  <!-- 6. Extension Management -->
+  <div class="content-block" id="cmd-extension">
+    <div class="category-pill">مدیریت افزونه‌ها</div>
+    <h3>دستورات خط فرمان مدیریت اکستنشن‌ها (<code>specify extension</code>)</h3>
+    <p>
+      اکستنشن‌ها را به آسانی جستجو، نصب، غیرفعال یا اولویت‌بندی کنید:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># جستجوی اکستنشن بر اساس کلمه کلیدی در کاتالوگ</span>
+specify extension search jira
+
+<span class="code-comment"># جستجو صرفاً میان اکستنشن‌های تاییدشده و امن رسمی</span>
+specify extension search --verified
+
+<span class="code-comment"># مشاهده شناسنامه، مستندات و لیست دستورات ارائه‌شده توسط یک اکستنشن</span>
+specify extension info bug
+
+<span class="code-comment"># نمایش فهرست تمامی اکستنشن‌های نصب‌شده در این پروژه</span>
+specify extension list
+
+<span class="code-comment"># دریافت لیست اکستنشن‌های فعال در قالب ماشین‌فهم JSON</span>
+specify extension list --json
+
+<span class="code-comment"># غیرفعال‌سازی موقت افزونه بدون پاک‌کردن فایل‌های پیکربندی</span>
+specify extension disable git
+
+<span class="code-comment"># فعال‌سازی مجدد افزونه غیرفعال‌شده</span>
+specify extension enable git
+
+<span class="code-comment"># تغییر اولویت اجرای دستورات هم‌نام (عدد کمتر = اولویت اجرایی بالاتر)</span>
+specify extension set-priority bug 5
+
+<span class="code-comment"># حذف کامل اکستنشن با حفظ فایل‌های تنظیمات محلی</span>
+specify extension remove bug --keep-config
+
+<span class="code-comment"># به‌روزرسانی تمامی افزونه‌های نصب‌شده به آخرین نسخه پایدار</span>
+specify extension update</code></pre>
+    </div>
+    <div class="callout callout-warning">
+      <div class="callout-icon">🔒</div>
+      <div class="callout-body">
+        <strong>مرز امنیتی کاتالوگ‌ها (Discovery-Only در برابر Install-Allowed):</strong>
+        کاتالوگ <code>community</code> صرفاً جنبه اکتشافی و جستجو دارد؛ برای جلوگیری از خطرات امنیتی نمی‌توان مستقیماً با نام از آن نصب کرد، مگر اینکه آدرس زیپ تاییدشده را با <code>--from &lt;url&gt;</code> صراحتاً پاس دهید.
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Preset Management -->
+  <div class="content-block" id="cmd-preset">
+    <div class="category-pill">مدیریت پریست‌ها</div>
+    <h3>دستورات خط فرمان مدیریت پریست‌ها (<code>specify preset</code>)</h3>
+    <p>
+      پریست‌ها استانداردهای شرکت شما را به قالب‌های Spec Kit تزریق می‌کنند:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># جستجوی پریست‌های مربوط به استانداردهای سازمانی و تطبیق</span>
+specify preset search compliance
+
+<span class="code-comment"># نصب یک پریست سفارشی با تعیین اولویت اعمال آن</span>
+specify preset add compliance --priority 5
+
+<span class="code-comment"># مهم‌ترین ابزار دیباگ: کدام پریست برنده شده و قالب جاری از کجا لود می‌شود؟</span>
+specify preset resolve spec-template.md
+
+<span class="code-comment"># نمایش لیست تمامی پریست‌های نصب‌شده به ترتیب رتبه اولویت</span>
+specify preset list
+
+<span class="code-comment"># تغییر اولویت یک پریست فعال (اعداد کوچک‌تر اولویت تقدم دارند)</span>
+specify preset set-priority compliance 1
+
+<span class="code-comment"># غیرفعال‌سازی موقت پریست برای بازگشت به قالب‌های پیش‌فرض</span>
+specify preset disable compliance
+
+<span class="code-comment"># فعال‌سازی مجدد پریست متوقف‌شده</span>
+specify preset enable compliance
+
+<span class="code-comment"># حذف کامل پریست از ساختار پروژه</span>
+specify preset remove compliance</code></pre>
+    </div>
+  </div>
+
+  <!-- 8. Bundles -->
+  <div class="content-block" id="cmd-bundle">
+    <div class="category-pill">بسته‌های نقشی</div>
+    <h3>دستورات کار با بسته‌ها (<code>specify bundle</code>)</h3>
+    <p>
+      باندل‌ها چندین افزونه و پریست را برای یک نقش معین در یک فایل <code>bundle.yml</code> گرد هم می‌آورند:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># جستجوی بسته‌های آماده بر اساس نقش یا تخصص مهندسی</span>
+specify bundle search "security"
+
+<span class="code-comment"># مشاهده ریز تمامی ابزارها، اکستنشن‌ها و پریست‌های موجود در یک بسته</span>
+specify bundle info security-researcher
+
+<span class="code-comment"># نصب یک‌جای تمام اجزای درون یک بسته تخصصی با یک دستور</span>
+specify bundle install security-researcher
+
+<span class="code-comment"># ارتقای همزمان تمامی اجزای درون بسته به آخرین نگارش‌های سازگار</span>
+specify bundle update --all
+
+<span class="code-comment"># حذف هوشمندانه بسته بدون آسیب به اجزایی که پروژه‌های دیگر بدان نیاز دارند</span>
+specify bundle remove security-researcher
+
+<span class="code-comment"># کامپایل و خروجی‌گرفتن از یک بسته سفارشی داخلی به فرمت zip قابل توزیع</span>
+specify bundle build --path ./my-custom-bundle --output ./dist</code></pre>
+    </div>
+  </div>
+
+  <!-- 9. Workflow Engine -->
+  <div class="content-block" id="cmd-workflow">
+    <div class="category-pill">موتور پایپ‌لاین</div>
+    <h3>اجرا و کنترل خودکار پایپ‌لاین‌ها (<code>specify workflow</code>)</h3>
+    <p>
+      ورک‌فلوها اجازه می‌دهند چرخه کامل SDD به صورت خودکار اجرا شود و در نقاط حساس انسانی متوقف شود:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># اجرای یک پایپ‌لاین کامل SDD با تزریق متن اولیه نیازمندی</span>
+specify workflow run speckit -i spec="سیستم ثبت‌نام پیامکی با احراز هویت دو مرحله‌ای"
+
+<span class="code-comment"># بررسی وضعیت عمومی فرآیندهای در حال اجرای پس‌زمینه</span>
+specify workflow status
+
+<span class="code-comment"># مشاهده ریز پیشرفت و گزارش مرحله‌به‌مرحله یک پایپ‌لاین با شناسه مشخص</span>
+specify workflow status 662bf791 --json
+
+<span class="code-comment"># تایید دروازه نظارت انسانی (Gate Step) و ادامه فرآیند تولید خودکار</span>
+specify workflow resume 662bf791 -i spec_verdict=approve
+
+<span class="code-comment"># مشاهده شکل تلفیق‌شده پایپ‌لاین پس از اعمال تغییرات محلی پروژه</span>
+specify workflow resolve speckit
+
+<span class="code-comment"># افزودن یک مرحله شخصی‌سازی به پایپ‌لاین (مثلاً بررسی با لینتر پیش از بیلد)</span>
+specify workflow overlay add ./add-lint.yml --priority 10</code></pre>
+    </div>
+  </div>
+
+  <!-- 10. Artifact Introspection -->
+  <div class="content-block" id="cmd-artifact">
+    <div class="category-pill">بازرسی عمیق</div>
+    <h3>بازرسی موجودی سیستم با <code>specify artifact</code></h3>
+    <p>
+      این دستورات ابزار اختصاصی برنامه‌نویسان برای اسکن لایه‌های زیرین نرم‌افزار هستند و به شکل اختصاصی با فرمت <code>--json</code> کار می‌کنند:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code><span class="code-comment"># استخراج ماتریس کامل تمامی دستورات، قالب‌ها، اسکریپت‌ها و هوک‌های رجیسترشده</span>
+specify artifact list --json
+
+<span class="code-comment"># ردیابی لایه‌های اولویت و تشخیص مبدا اصلی یک دستور خاص در سیستم</span>
+specify artifact info command:speckit.specify --json
+
+<span class="code-comment"># جستجوی مستقیم یک عنصر بر اساس کلید شناسایی دقیق آن در منیفست</span>
+specify artifact lookup preset:compliance:command:speckit.specify --json</code></pre>
+    </div>
+  </div>
+</section>
+
+
+<!-- SECTION: section6_tips_and_troubleshooting.html -->
+<section id="tips-troubleshooting" class="doc-section">
+  <div class="section-header">
+    <div class="badge-tag">بخش ششم</div>
+    <h2>نکات طلایی، خطاهای رایج و راهنمای رفع اشکال (Troubleshooting)</h2>
+    <p class="section-lead">
+      درس‌های حاصل از صدها ساعت کار واقعی با Spec Kit؛ چطور مثل یک توسعه‌دهنده ارشد فکر کنیم و از دام اشتباهات کلاسیک رها شویم؟
+    </p>
+  </div>
+
+  <div class="content-block">
+    <h3>۵ اشتباه مرگبار که نباید مرتکب شوید</h3>
+
+    <div class="mistake-box">
+      <div class="mistake-header">
+        <span class="cross-icon">❌</span>
+        <h4>اشتباه اول: وارد کردن اسامی پشته فنی در مرحله Spec</h4>
+      </div>
+      <p>
+        خیلی از توسعه‌دهندگان عادت دارند در پرامپت اول بنویسند: <em>«یک میکروسرویس با Go و دیتابیس Redis و ارتباط gRPC بساز که...»</em>. این کار بزرگ‌ترین نقض فلسفه SDD است! اگر پشته فنی در نیازمندی باشد، با هر بار تغییر زبان یا دیتابیس باید نیازمندی‌ها بازنویسی شوند.
+      </p>
+      <div class="solution-tag">✅ راه‌حل صحیح:</div>
+      <p class="solution-text">
+        در دستور <code>/speckit.specify</code> فقط از <strong>«چه کاری و چرا»</strong> بگویید (مثلاً: ثبت تراکنش‌ها با تاخیر زیر ۱۰ میلی‌ثانیه و بدون باخت داده). انتخاب Go و Redis را بگذارید برای گام چهارم یعنی <code>/speckit.plan</code>.
+      </p>
+    </div>
+
+    <div class="mistake-box">
+      <div class="mistake-header">
+        <span class="cross-icon">❌</span>
+        <h4>اشتباه دوم: طفره رفتن از دستور <code>/speckit.clarify</code></h4>
+      </div>
+      <p>
+        گاهی خسته می‌شویم و بعد از specify سریعاً plan را صدا می‌زنیم در حالی که هنوز چند برچسب <code>[NEEDS CLARIFICATION]</code> در متن سند وجود دارد. این کار یعنی اجازه دادن به مدل هوش مصنوعی برای رویاپردازی و باگ‌زایی!
+      </p>
+      <div class="solution-tag">✅ راه‌حل صحیح:</div>
+      <p class="solution-text">
+        تا زمانی که تمام نقاط مبهم در <code>spec.md</code> با پاسخ‌های دقیق شما حل نشده، به هیچ عنوان وارد مرحله پلان نشوید. چند دقیقه گفت‌وگو در clarify، ساعت‌ها وقت دیباگ در انتهای کار را ذخیره می‌کند.
+      </p>
+    </div>
+
+    <div class="mistake-box">
+      <div class="mistake-header">
+        <span class="cross-icon">❌</span>
+        <h4>اشتباه سوم: اصرار بر اجرای یک‌جای تمام تسک‌ها در <code>/speckit.implement</code></h4>
+      </div>
+      <p>
+        اگر به ایجنت بگویید <em>«تمام تسک‌ها را از بالا تا پایین بساز»</em>، مدل پس از چند فایل دچار سرریز حافظه کانتکست (Context Window Exhaustion) شده و خطوط آخر کدها را ناقص رها می‌کند یا تست‌ها را فراموش می‌نماید.
+      </p>
+      <div class="solution-tag">✅ راه‌حل صحیح:</div>
+      <p class="solution-text">
+        اجرای پیاده‌سازی را به صورت گام‌به‌گام و فازبندی هدایت کنید: اول فاز راه‌اندازی و مدل‌ها، سپس فازهای مربوط به داستان‌های کاربری و در نهایت پولیش و سناریوهای مرزی.
+      </p>
+    </div>
+
+    <div class="mistake-box">
+      <div class="mistake-header">
+        <span class="cross-icon">❌</span>
+        <h4>اشتباه چهارم: تیک زدن چک‌لیست‌ها به دست ایجنت هوش مصنوعی</h4>
+      </div>
+      <p>
+        چک‌لیست‌ها ساخته می‌شوند تا توسط شما (انسان ناظر) ممیزی شوند. اگر ایجنت خودش چک‌لیست را تیک بزند، مثل این است که دانش‌آموز برگه امتحانی خودش را تصحیح کند و نمره بیست بدهد!
+      </p>
+      <div class="solution-tag">✅ راه‌حل صحیح:</div>
+      <p class="solution-text">
+        همیشه تاکید کنید که تغییر تیک‌های <code>[ ]</code> به <code>[x]</code> در چک‌لیست‌ها باید منحصراً توسط توسعه‌دهنده یا بازبین ارشد انجام گیرد.
+      </p>
+    </div>
+
+    <div class="mistake-box">
+      <div class="mistake-header">
+        <span class="cross-icon">❌</span>
+        <h4>اشتباه پنجم: دستکاری مستقیم فایل‌های داخل <code>.specify/</code></h4>
+      </div>
+      <p>
+        پوشه <code>.specify/</code> توسط منیفست سیستم کنترل می‌شود. اگر فایل‌های قالب را مستقیماً داخل آن تغییر دهید، در آپدیت بعدی یا بازنشانی اکستنشن‌ها ممکن است هشدارهای مغایرت هش یا تغییر ناخواسته رخ دهد.
+      </p>
+      <div class="solution-tag">✅ راه‌حل صحیح:</div>
+      <p class="solution-text">
+        برای شخصی‌سازی قالب‌ها، همیشه از مسیر اولویت‌اول <code>.specify/templates/overrides/</code> استفاده کنید یا یک Preset بسازید تا خیالتان در تمام ارتقاها راحت باشد.
+      </p>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3>جدول راهنمای رفع خطاهای متداول (Troubleshooting)</h3>
+    <div class="table-responsive">
+      <table class="doc-table">
+        <thead>
+          <tr>
+            <th>پیام خطا یا مشکل</th>
+            <th>علت احتمالی</th>
+            <th>روش رفع سریع</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Not a Spec Kit project (no .specify/ directory)</code></td>
+            <td>دستور CLI را خارج از ریشه پروژه اجرا کرده‌اید.</td>
+            <td>با دستور <code>cd</code> وارد ریشه پروژه‌ای شوید که دارای پوشه <code>.specify/</code> است، یا متغیر <code>SPECIFY_INIT_DIR</code> را به آدرس آن ست کنید.</td>
+          </tr>
+          <tr>
+            <td><code>Feature directory not found</code></td>
+            <td>فایل نشانگر فیچر فعال (<code>feature.json</code>) خالی است یا هنوز مشخصاتی تعریف نشده است.</td>
+            <td>دستور <code>/speckit.specify</code> را اجرا کنید تا فیچر جدید ساخته شود، یا مسیر آن را با <code>SPECIFY_FEATURE_DIRECTORY</code> تنظیم کنید.</td>
+          </tr>
+          <tr>
+            <td>دستورات اسلش در چت ادیتور دیده نمی‌شوند</td>
+            <td>ادیتور بعد از اجرای <code>specify init</code> هنوز رفرش نشده است.</td>
+            <td>یک‌بار پنجره ادیتور را ببندید و باز کنید، یا دستور <code>specify integration use &lt;agent&gt;</code> را اجرا نمایید تا فایل‌های پرامپت مجدداً بارگذاری شوند.</td>
+          </tr>
+          <tr>
+            <td>خطای تناقض در <code>/speckit.analyze</code></td>
+            <td>تسکی نوشته شده که در spec نبوده، یا انتخابی در پلان با قانون اساسی ناسازگار است.</td>
+            <td>نیازی به دستکاری کد نیست؛ به سند مبدا (spec یا plan) برگردید، متن نیازمندی یا معماری را اصلاح کنید و دوباره analyze بزنید.</td>
+          </tr>
+          <tr>
+            <td>حلقه نامتناهی در <code>/speckit.converge</code></td>
+            <td>کدهای تولید شده با تعاریف فایل plan یا معیارهای پذیرش تطابق کامل ندارند.</td>
+            <td>تسک‌های اضافه شده در انتهای <code>tasks.md</code> را بررسی کرده و با اجرای <code>/speckit.implement</code> روی همان تسک‌های خاص، پروژه را به همگرایی نهایی برسانید.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+
+
+      <!-- Footer & Author Attribution -->
+      <footer class="doc-footer">
+        <div class="author-badge">
+          <span class="author-label">تهیه و تدوین:</span>
+          <span class="author-name">مهدی اسداله پور</span>
+        </div>
+        <p>مستندسازی و تالیف اختصاصی به زبان فارسی برای مهندسان نرم‌افزار و تیم‌های فنی</p>
+        <p style="margin-top: 0.4rem; opacity: 0.75;">بر اساس پروژه متن‌باز <a href="https://github.com/github/spec-kit" target="_blank" rel="noopener" style="color: var(--primary); text-decoration: none;">github/spec-kit</a> و پژوهش‌های John Lam</p>
+      </footer>
+
+    </main>
+  </div>
+
+  <script>
+    // Copy Code to Clipboard with tactile feedback
+    function copyCode(button) {
+      const container = button.closest('.code-container');
+      const pre = container.querySelector('pre');
+      const code = pre.innerText;
+      
+      navigator.clipboard.writeText(code).then(() => {
+        const originalText = button.innerHTML;
+        button.innerHTML = 'کپی شد! ✓';
+        button.style.color = '#10b981';
+        button.style.borderColor = '#10b981';
+        button.style.background = 'rgba(16, 185, 129, 0.2)';
+        
+        setTimeout(() => {
+          button.innerHTML = originalText;
+          button.style.color = '';
+          button.style.borderColor = '';
+          button.style.background = '';
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy code: ', err);
+      });
+    }
+
+    // Inject macOS terminal dots into all code containers automatically
+    document.querySelectorAll('.code-header').forEach(header => {
+      if (!header.querySelector('.terminal-dots')) {
+        const dots = document.createElement('div');
+        dots.className = 'terminal-dots';
+        dots.innerHTML = '<span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>';
+        header.insertBefore(dots, header.firstChild);
+      }
+    });
+
+    // Theme Toggle Logic with LocalStorage persistence
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('speckit_theme', theme);
+      document.querySelectorAll('.theme-toggle-btn .theme-icon').forEach(icon => {
+        icon.innerText = (theme === 'light') ? '☀️' : '🌙';
+      });
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = (current === 'dark') ? 'light' : 'dark';
+      applyTheme(next);
+    }
+
+    // Initialize theme on load
+    (function initTheme() {
+      const saved = localStorage.getItem('speckit_theme');
+      if (saved) {
+        applyTheme(saved);
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+        applyTheme('light');
+      } else {
+        applyTheme('dark');
+      }
+    })();
+
+    // Scroll Progress Indicator
+    window.addEventListener('scroll', () => {
+      const winScroll = document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = height > 0 ? (winScroll / height) : 0;
+      const bar = document.getElementById('scroll-progress');
+      if (bar) {
+        bar.style.transform = `scaleX(${scrolled})`;
+      }
+    });
+
+    // Mobile Sidebar Toggle
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+
+    // Close mobile sidebar on link click
+    function selectNav(element) {
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-sub-item').forEach(el => el.classList.remove('active'));
+      element.classList.add('active');
+      const sidebar = document.getElementById('sidebar');
+      if (window.innerWidth <= 860) {
+        sidebar.classList.remove('open');
+      }
+    }
+
+    // Direct command sub-item click handler
+    function selectSubNav(element) {
+      document.querySelectorAll('.nav-sub-item').forEach(el => el.classList.remove('active'));
+      element.classList.add('active');
+      const parentGroup = element.closest('.nav-section-group');
+      if (parentGroup) {
+        const parentLink = parentGroup.querySelector('.nav-item');
+        if (parentLink) {
+          document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+          parentLink.classList.add('active');
+        }
+      }
+      const sidebar = document.getElementById('sidebar');
+      if (window.innerWidth <= 860) {
+        sidebar.classList.remove('open');
+      }
+    }
+
+    // Realtime search filter across sections and nested commands
+    function filterNavigation() {
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+      const groups = document.querySelectorAll('.nav-section-group');
+      
+      groups.forEach(group => {
+        const parentItem = group.querySelector('.nav-item');
+        const subItems = group.querySelectorAll('.nav-sub-item');
+        let anySubMatch = false;
+
+        subItems.forEach(sub => {
+          const text = sub.innerText.toLowerCase();
+          if (query === '' || text.includes(query)) {
+            sub.style.display = 'flex';
+            if (query !== '' && text.includes(query)) {
+              anySubMatch = true;
+            }
+          } else {
+            sub.style.display = 'none';
+          }
+        });
+
+        const parentText = parentItem ? parentItem.innerText.toLowerCase() : '';
+        const parentMatches = query === '' || parentText.includes(query);
+
+        if (parentMatches || anySubMatch) {
+          group.style.display = 'block';
+          if (parentItem) parentItem.style.display = 'flex';
+          if (parentMatches && query !== '') {
+            subItems.forEach(sub => sub.style.display = 'flex');
+          }
+        } else {
+          group.style.display = 'none';
+        }
+      });
+    }
+
+    // Active Scrollspy navigation
+    window.addEventListener('scroll', () => {
+      const sections = document.querySelectorAll('.doc-section');
+      const scrollPos = window.scrollY + 160;
+      
+      sections.forEach(section => {
+        const top = section.offsetTop;
+        const height = section.offsetHeight;
+        const id = section.getAttribute('id');
+        
+        if (scrollPos >= top && scrollPos < top + height) {
+          document.querySelectorAll('.sidebar-nav .nav-item').forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + id) {
+              link.classList.add('active');
+            }
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
