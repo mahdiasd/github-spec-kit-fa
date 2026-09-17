@@ -34,3 +34,5 @@ You can view the live interactive guide directly on GitHub Pages:
 
 - **مهدی اسداله پور** (Mahdi Asadolahpoor)
 - GitHub: [@mahdiasd](https://github.com/mahdiasd)
+- LinkedIn: [mahdiasd96](https://www.linkedin.com/in/mahdiasd96/)
+

@@ -12,37 +12,39 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
   
   <style>
-    /* CSS Design Tokens - Distinctive Forest Obsidian & Luminous Emerald / Amber */
+    /* CSS Design Tokens - Custom Ocean Steel & Rose Palette */
     :root, [data-theme="dark"] {
-      --bg-canvas: #090c10;
-      --bg-surface: #0e141a;
-      --bg-surface-elevated: #131c24;
-      --bg-card: #0e141a;
-      --bg-card-hover: #16222c;
-      --bg-code: #070a0d;
-      --code-header-bg: #0b1117;
+      --bg-canvas: #090e13;
+      --bg-surface: #0e161e;
+      --bg-surface-elevated: #131e29;
+      --bg-card: #0e161e;
+      --bg-card-hover: #162432;
+      --bg-code: #080d12;
+      --code-header-bg: #0d151c;
       
       --border-subtle: rgba(255, 255, 255, 0.08);
       --border-strong: rgba(255, 255, 255, 0.15);
-      --border-accent: #10b981;
+      --border-accent: #41a6c4;
       
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
-      --text-dim: #6b7280;
+      --text-main: #f3f6f8;
+      --text-muted: #9db1bf;
+      --text-dim: #6a7f8e;
       
-      --primary: #10b981;          /* Luminous Emerald */
-      --primary-dark: #059669;
-      --primary-light: #34d399;     /* Mint */
-      --primary-subtle: rgba(16, 185, 129, 0.12);
-      --primary-glow: rgba(16, 185, 129, 0.25);
+      --primary: #41a6c4;          /* Ocean Steel Blue */
+      --primary-dark: #2f849e;
+      --primary-light: #89c0b6;     /* Sage Mint */
+      --primary-subtle: rgba(65, 166, 196, 0.12);
+      --primary-glow: rgba(65, 166, 196, 0.25);
       
-      --accent-amber: #f59e0b;      /* Warm Ochre/Gold */
-      --accent-purple: #a855f7;
-      --accent-rose: #f43f5e;
-      --accent-cyan: #14b8a6;
+      --accent-pink: #e2adbd;       /* Soft Blush Pink */
+      --accent-rose: #d484a0;       /* Dusty Rose */
+      --accent-coral: #ed5371;      /* Vibrant Coral Crimson */
+      --accent-amber: #e2adbd;      
+      --accent-purple: #d484a0;
+      --accent-cyan: #89c0b6;
       
-      --hero-bg: linear-gradient(180deg, rgba(19, 28, 36, 0.92) 0%, rgba(14, 20, 26, 0.97) 100%);
-      --hero-border: rgba(16, 185, 129, 0.25);
+      --hero-bg: linear-gradient(180deg, rgba(19, 30, 41, 0.95) 0%, rgba(14, 22, 30, 0.98) 100%);
+      --hero-border: rgba(65, 166, 196, 0.28);
       
       --sidebar-width: 315px;
       --radius-sm: 6px;
@@ -53,35 +55,37 @@
 
     /* CSS Design Tokens - Light Theme */
     [data-theme="light"] {
-      --bg-canvas: #f7faf8;
+      --bg-canvas: #f6f9fb;
       --bg-surface: #ffffff;
-      --bg-surface-elevated: #eef4f0;
+      --bg-surface-elevated: #edf4f7;
       --bg-card: #ffffff;
-      --bg-card-hover: #f0f7f3;
-      --bg-code: #0b1117;
-      --code-header-bg: #121a22;
+      --bg-card-hover: #f1f7fa;
+      --bg-code: #0b1218;
+      --code-header-bg: #111b22;
       
-      --border-subtle: #e0e8e3;
-      --border-strong: #c8d6ce;
-      --border-accent: #059669;
+      --border-subtle: #dfe8ed;
+      --border-strong: #c5d7e0;
+      --border-accent: #2f849e;
       
-      --text-main: #0f1814;
-      --text-muted: #495750;
-      --text-dim: #6b7a73;
+      --text-main: #0c1820;
+      --text-muted: #435b6b;
+      --text-dim: #677f8f;
       
-      --primary: #059669;          /* Deep Forest Emerald */
-      --primary-dark: #047857;
-      --primary-light: #10b981;
-      --primary-subtle: rgba(5, 150, 105, 0.09);
-      --primary-glow: rgba(5, 150, 105, 0.2);
+      --primary: #2f849e;          /* Rich Ocean Blue */
+      --primary-dark: #23697e;
+      --primary-light: #41a6c4;
+      --primary-subtle: rgba(65, 166, 196, 0.1);
+      --primary-glow: rgba(65, 166, 196, 0.22);
       
-      --accent-amber: #d97706;
-      --accent-purple: #9333ea;
-      --accent-rose: #e11d48;
-      --accent-cyan: #0d9488;
+      --accent-pink: #d484a0;
+      --accent-rose: #d484a0;
+      --accent-coral: #ed5371;
+      --accent-amber: #d484a0;
+      --accent-purple: #d484a0;
+      --accent-cyan: #41a6c4;
       
-      --hero-bg: linear-gradient(180deg, #ffffff 0%, #f0f7f3 100%);
-      --hero-border: rgba(5, 150, 105, 0.2);
+      --hero-bg: linear-gradient(180deg, #ffffff 0%, #edf4f7 100%);
+      --hero-border: rgba(65, 166, 196, 0.25);
     }
 
     * {
@@ -237,7 +241,7 @@
       height: 36px;
       border-radius: 9px;
       background: var(--primary-subtle);
-      border: 1px solid rgba(16, 185, 129, 0.35);
+      border: 1px solid rgba(65, 166, 196, 0.35);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -279,7 +283,7 @@
 
     .search-input:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+      box-shadow: 0 0 0 2px rgba(65, 166, 196, 0.2);
     }
 
     .search-icon {
@@ -336,7 +340,7 @@
       background: var(--primary-subtle);
       color: var(--primary);
       font-weight: 700;
-      border-color: rgba(16, 185, 129, 0.3);
+      border-color: rgba(65, 166, 196, 0.3);
     }
 
     .nav-num {
@@ -354,7 +358,7 @@
     }
 
     .nav-item.active .nav-num {
-      background: rgba(16, 185, 129, 0.25);
+      background: rgba(65, 166, 196, 0.25);
       color: var(--primary);
     }
 
@@ -394,7 +398,7 @@
       background: var(--primary-subtle);
       color: var(--primary);
       font-weight: 600;
-      border-color: rgba(16, 185, 129, 0.25);
+      border-color: rgba(65, 166, 196, 0.25);
     }
 
     .nav-sub-item code {
@@ -462,7 +466,7 @@
       align-items: center;
       gap: 0.5rem;
       background: var(--primary-subtle);
-      border: 1px solid rgba(16, 185, 129, 0.35);
+      border: 1px solid rgba(65, 166, 196, 0.35);
       color: var(--primary);
       padding: 0.25rem 0.75rem;
       border-radius: 20px;
@@ -529,7 +533,7 @@
     }
 
     .stat-item:hover {
-      border-color: rgba(16, 185, 129, 0.35);
+      border-color: rgba(65, 166, 196, 0.35);
       background: var(--bg-card-hover);
     }
 
@@ -631,7 +635,7 @@
       font-weight: 600;
       color: var(--primary);
       background: var(--primary-subtle);
-      border: 1px solid rgba(16, 185, 129, 0.25);
+      border: 1px solid rgba(65, 166, 196, 0.25);
       padding: 0.2rem 0.65rem;
       border-radius: 20px;
       margin-bottom: 0.5rem;
@@ -719,7 +723,7 @@
     }
 
     .workflow-diagram::-webkit-scrollbar-thumb {
-      background: rgba(16, 185, 129, 0.3);
+      background: rgba(65, 166, 196, 0.3);
       border-radius: 3px;
     }
 
@@ -743,7 +747,7 @@
     .diagram-step:hover {
       border-color: var(--primary);
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.15);
+      box-shadow: 0 8px 20px rgba(65, 166, 196, 0.15);
       background: var(--bg-card-hover);
     }
 
@@ -760,7 +764,7 @@
       align-items: center;
       justify-content: center;
       margin-bottom: 0.45rem;
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      border: 1px solid rgba(65, 166, 196, 0.3);
     }
 
     .diagram-step:hover .step-num {
@@ -833,7 +837,7 @@
     .paradigm-badge.good {
       background: var(--primary-subtle);
       color: var(--primary);
-      border: 1px solid rgba(16, 185, 129, 0.35);
+      border: 1px solid rgba(65, 166, 196, 0.35);
     }
 
     .flow-steps {
@@ -863,7 +867,7 @@
     }
 
     .flow-node.success {
-      border-color: rgba(16, 185, 129, 0.4);
+      border-color: rgba(65, 166, 196, 0.4);
       background: var(--primary-subtle);
       color: var(--primary);
       font-weight: 700;
@@ -895,7 +899,7 @@
     .concept-card:hover {
       border-color: var(--primary);
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.12);
+      box-shadow: 0 8px 24px rgba(65, 166, 196, 0.12);
       background: var(--bg-card-hover);
     }
 
@@ -1011,7 +1015,7 @@
     }
     .dot.red { background: #ef4444; }
     .dot.yellow { background: #f59e0b; }
-    .dot.green { background: #10b981; }
+    .dot.green { background: #89c0b6; }
 
     .code-lang {
       color: #9ca3af;
@@ -1042,7 +1046,7 @@
     .copy-btn:hover {
       background: var(--primary-subtle);
       color: var(--primary-light);
-      border-color: rgba(16, 185, 129, 0.4);
+      border-color: rgba(65, 166, 196, 0.4);
     }
 
     pre {
@@ -1068,7 +1072,7 @@
       font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, Tahoma, sans-serif !important;
       font-size: 0.86rem;
       font-weight: 500;
-      color: #6ee7b7;
+      color: #89c0b6;
       line-height: 1.85;
       margin-top: 0.65rem;
       margin-bottom: 0.25rem;
@@ -1078,7 +1082,7 @@
     }
 
     [data-theme="light"] .code-comment {
-      color: #059669;
+      color: #2f849e;
     }
 
     code > .code-comment:first-child {
@@ -1220,21 +1224,60 @@
       align-items: center;
       gap: 0.6rem;
       background: var(--bg-surface-elevated);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      padding: 0.45rem 1.2rem;
+      border: 1px solid rgba(65, 166, 196, 0.35);
+      padding: 0.5rem 1.25rem;
       border-radius: 30px;
-      margin-bottom: 1rem;
+      margin-bottom: 0.9rem;
     }
 
     .author-label {
       color: var(--text-dim);
-      font-size: 0.82rem;
+      font-size: 0.84rem;
     }
 
     .author-name {
       color: var(--primary);
       font-weight: 700;
-      font-size: 0.94rem;
+      font-size: 0.96rem;
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    .author-name:hover {
+      color: var(--accent-pink);
+      text-decoration: underline;
+    }
+
+    .author-social-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 0.2rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .author-social-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-family: 'JetBrains Mono', 'Vazirmatn', monospace;
+      direction: ltr;
+      transition: all 0.2s ease;
+    }
+
+    .author-social-link:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-subtle);
+      transform: translateY(-1px);
     }
 
     /* Mobile Responsiveness */
@@ -2930,7 +2973,17 @@ specify artifact lookup preset:compliance:command:speckit.specify --json</code><
       <footer class="doc-footer">
         <div class="author-badge">
           <span class="author-label">تهیه و تدوین:</span>
-          <span class="author-name">مهدی اسداله پور</span>
+          <a href="https://github.com/mahdiasd" target="_blank" rel="noopener" class="author-name">مهدی اسداله پور</a>
+        </div>
+        <div class="author-social-links">
+          <a href="https://github.com/mahdiasd" target="_blank" rel="noopener" class="author-social-link">
+            <span>GitHub</span>
+            <span>↗</span>
+          </a>
+          <a href="https://www.linkedin.com/in/mahdiasd96/" target="_blank" rel="noopener" class="author-social-link">
+            <span>LinkedIn</span>
+            <span>↗</span>
+          </a>
         </div>
         <p>مستندسازی و تالیف اختصاصی به زبان فارسی برای مهندسان نرم‌افزار و تیم‌های فنی</p>
         <p style="margin-top: 0.4rem; opacity: 0.75;">بر اساس پروژه متن‌باز <a href="https://github.com/github/spec-kit" target="_blank" rel="noopener" style="color: var(--primary); text-decoration: none;">github/spec-kit</a> و پژوهش‌های John Lam</p>
@@ -2949,9 +3002,9 @@ specify artifact lookup preset:compliance:command:speckit.specify --json</code><
       navigator.clipboard.writeText(code).then(() => {
         const originalText = button.innerHTML;
         button.innerHTML = 'کپی شد! ✓';
-        button.style.color = '#10b981';
-        button.style.borderColor = '#10b981';
-        button.style.background = 'rgba(16, 185, 129, 0.2)';
+        button.style.color = '#41a6c4';
+        button.style.borderColor = '#41a6c4';
+        button.style.background = 'rgba(65, 166, 196, 0.2)';
         
         setTimeout(() => {
           button.innerHTML = originalText;
