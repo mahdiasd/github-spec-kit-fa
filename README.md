@@ -36,3 +36,10 @@ You can view the live interactive guide directly on GitHub Pages:
 - GitHub: [@mahdiasd](https://github.com/mahdiasd)
 - LinkedIn: [mahdiasd96](https://www.linkedin.com/in/mahdiasd96/)
 
+---
+
+## 🙏 تقدیر و تشکر / Acknowledgments
+
+- با تشکر ویژه از کانال [iampedi](https://www.youtube.com/@iampedi) برای تولید آموزش ویدیویی ارزشمند درباره این ابزار.
+- Special thanks to [iampedi](https://www.youtube.com/@iampedi) for the great video walkthrough and tutorial on this tool.
+
