@@ -1280,6 +1280,39 @@
       transform: translateY(-1px);
     }
 
+    .thanks-card {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--bg-surface-elevated);
+      border: 1px solid rgba(226, 173, 189, 0.3);
+      padding: 0.55rem 1.2rem;
+      border-radius: 20px;
+      margin-top: 1.2rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+
+    .thanks-card:hover {
+      border-color: var(--accent-pink);
+      background: rgba(226, 173, 189, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .thanks-card a {
+      color: var(--accent-pink);
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .thanks-card a:hover {
+      text-decoration: underline;
+    }
+
     /* Mobile Responsiveness */
     @media (max-width: 860px) {
       .mobile-header {
@@ -2987,7 +3020,13 @@ specify artifact lookup preset:compliance:command:speckit.specify --json</code><
         </div>
         <p>مستندسازی و تالیف اختصاصی به زبان فارسی برای مهندسان نرم‌افزار و تیم‌های فنی</p>
         <p style="margin-top: 0.4rem; opacity: 0.75;">بر اساس پروژه متن‌باز <a href="https://github.com/github/spec-kit" target="_blank" rel="noopener" style="color: var(--primary); text-decoration: none;">github/spec-kit</a> و پژوهش‌های John Lam</p>
-        <p style="margin-top: 0.5rem; font-size: 0.82rem; opacity: 0.85;">با تشکر ویژه از <a href="https://www.youtube.com/@iampedi" target="_blank" rel="noopener" style="color: var(--accent-pink); font-weight: 600; text-decoration: none;">iampedi</a> برای آموزش و ویدیوی عالی درباره این ابزار</p>
+        <div>
+          <div class="thanks-card">
+            <span>با تشکر از</span>
+            <a href="https://www.youtube.com/@iampedi" target="_blank" rel="noopener" title="iampedi">iampedi ↗</a>
+            <span>برای ویدیوی خوبش درباره‌ی این ابزار</span>
+          </div>
+        </div>
       </footer>
 
     </main>
