@@ -46,7 +46,7 @@
       --hero-bg: linear-gradient(180deg, rgba(19, 30, 41, 0.95) 0%, rgba(14, 22, 30, 0.98) 100%);
       --hero-border: rgba(65, 166, 196, 0.28);
       
-      --sidebar-width: 315px;
+      --sidebar-width: 335px;
       --radius-sm: 6px;
       --radius-md: 10px;
       --radius-lg: 14px;
@@ -364,8 +364,8 @@
 
     /* Nested Sub-navigation for Commands */
     .nav-sub-items {
-      margin-right: 1.1rem;
-      padding-right: 0.75rem;
+      margin-right: 0.9rem;
+      padding-right: 0.65rem;
       border-right: 1.5px solid var(--border-subtle);
       display: flex;
       flex-direction: column;
@@ -379,7 +379,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 0.5rem;
-      padding: 0.35rem 0.6rem;
+      padding: 0.35rem 0.55rem;
       border-radius: var(--radius-sm);
       color: var(--text-muted);
       text-decoration: none;
@@ -1291,7 +1291,7 @@
         right: -100%;
         top: 0;
         bottom: 0;
-        width: 290px;
+        width: 310px;
         transition: right 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: -10px 0 30px rgba(0, 0, 0, 0.4);
       }
@@ -1825,7 +1825,7 @@
 uv tool install specify-cli
 
 <span class="code-comment"># یا نصب مستقیم آخرین نسخه از روی سورس مخزن گیت‌هاب</span>
-uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v1.0.0</code></pre>
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v1.0.7</code></pre>
     </div>
     <p>
       اگر تمایل ندارید ابزاری به صورت سراسری نصب شود و فقط می‌خواهید به شکل موقت و تک‌باره دستوری را اجرا کنید، دستور <code>uvx</code> در خدمت شماست:
@@ -1903,7 +1903,7 @@ specify self upgrade --dry-run
 specify self upgrade
 
 <span class="code-comment"># ارتقا یا دانگرید به یک برچسب یا تگ مشخص از نسخه</span>
-specify self upgrade --tag v1.0.0</code></pre>
+specify self upgrade --tag v1.0.7</code></pre>
     </div>
   </div>
 

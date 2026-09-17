@@ -1,0 +1,184 @@
+<section id="setup-cli" class="doc-section">
+  <div class="section-header">
+    <div class="badge-tag">بخش دوم</div>
+    <h2>پیش‌نیازها، نصب و راه‌اندازی خط فرمان (CLI)</h2>
+    <p class="section-lead">
+      چگونه ابزار Specify CLI را در سیستم‌عامل خود نصب کنیم، سلامت ابزارها را بسنجیم و آن را برای ایجنت‌های هوش مصنوعی آماده‌سازی کنیم؟
+    </p>
+  </div>
+
+  <div class="content-block">
+    <h3>پیش‌نیازهای لازم</h3>
+    <p>
+      برای استفاده از Spec Kit روی سیستم‌عامل‌های ویندوز، لینوکس یا مک، به موارد زیر نیاز دارید:
+    </p>
+    <ul class="checklist-styled">
+      <li><strong>پایتون نسخه 3.11 یا بالاتر:</strong> موتور زیرین اسکریپت‌ها و هسته CLI با پایتون اجرا می‌شود.</li>
+      <li><strong>مدیر پکیج قدرتمند <code>uv</code> (توصیه‌شده):</strong> سریع‌ترین و بدون‌دردسرترین ابزار نصب ابزارهای پایتونی (<a href="https://docs.astral.sh/uv/" target="_blank" rel="noopener">نصب uv</a>). در صورت تمایل از <code>pipx</code> هم می‌توانید استفاده کنید.</li>
+      <li><strong>کنترل نسخه Git:</strong> برای ثبت تاریخچه و شاخه‌بندی نیازمندی‌ها.</li>
+      <li><strong>یک ایجنت هوش مصنوعی سازگار:</strong> حداقل یکی از ایجنت‌های پشتیبانی‌شده مانند GitHub Copilot (در VS Code)، Claude Code، Gemini CLI، Antigravity، Cursor یا Codex.</li>
+    </ul>
+  </div>
+
+  <div class="content-block">
+    <h3>۱. نصب ابزار Specify CLI</h3>
+    <p>
+      پیشنهاد رسمی و استاندارد گیت‌هاب، استفاده از دستور <code>uv tool</code> است که ابزار را در یک محیط ایزوله و سراسری نصب می‌کند تا در هر مسیری از ترمینال قابل دسترس باشد:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Bash / Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code># نصب پایدار و سراسری از مخزن رسمی پایتون (PyPI)
+uv tool install specify-cli
+
+# یا نصب مستقیم آخرین نسخه از روی سورس مخزن گیت‌هاب
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v1.0.7</code></pre>
+    </div>
+    <p>
+      اگر تمایل ندارید ابزاری به صورت سراسری نصب شود و فقط می‌خواهید به شکل موقت و تک‌باره دستوری را اجرا کنید، دستور <code>uvx</code> در خدمت شماست:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Bash / Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code># اجرای موقت ابزار بدون نیاز به نصب در محیط سیستم
+uvx specify-cli check</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3>۲. سنجش ابزارهای سیستم با دستور <code>specify check</code></h3>
+    <p>
+      این دستور سیستم شما را بدون نیاز به اتصال اینترنت اسکن می‌کند و نشان می‌دهد کدام ایجنت‌های هوش مصنوعی (مثل Claude، Gemini، Kimi و...) روی سیستم شما نصب و فعال هستند.
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code># اسکن محلی سیستم و سنجش سلامت و آمادگی ایجنت‌های هوش مصنوعی
+specify check</code></pre>
+    </div>
+    <div class="callout callout-note">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body">
+        <strong>چرا برای برخی ایجنت‌ها پیام Skip نمایش داده می‌شود؟</strong>
+        برخی ایجنت‌ها مثل Cursor یا اکستنشن‌های VS Code نیازی به ابزار خط فرمان مستقل ندارند و مستقیماً داخل محیط ادیتور فعالیت می‌کنند. ابزار <code>specify check</code> به طور هوشمند این دسته را به عنوان IDE-based در نظر می‌گیرد و نادیده رد می‌کند.
+      </div>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3>۳. بررسی نسخه و قابلیت‌ها با <code>specify version</code></h3>
+    <p>
+      برای مشاهده نسخه CLI، پلتفرم و قابلیت‌های فعال می‌توانید از این دستور استفاده کنید:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code># نمایش شماره نسخه ابزار به همراه مشخصات سیستم‌عامل
+specify version
+
+# نمایش جدول فیچرهای فعال و قابلیت‌های محلی
+specify version --features
+
+# استخراج نسخه در قالب ساختاریافته JSON برای اسکریپت‌های اتوماسیون
+specify version --features --json</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3>۴. مدیریت و ارتقای خودکار با <code>specify self</code></h3>
+    <p>
+      تیم Spec Kit دستورات اختصاصی داخلی برای بررسی و آپدیت خودکار CLI تدارک دیده است تا نیازی به تایپ دستورات طولانی نصب مجدد نداشته باشید:
+    </p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-lang">Terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+      </div>
+      <pre dir="ltr"><code># بررسی بدون تغییر (Read-Only) جهت اطلاع از انتشار نسخه جدیدتر
+specify self check
+
+# پیش‌نمایش متنی فرآیند ارتقا بدون اعمال هیچ تغییری در فایل‌ها
+specify self upgrade --dry-run
+
+# دانلود و نصب آنی آخرین نسخه منتشر شده از ابزار
+specify self upgrade
+
+# ارتقا یا دانگرید به یک برچسب یا تگ مشخص از نسخه
+specify self upgrade --tag v1.0.7</code></pre>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3>۵. انتخاب موتور اسکریپت با فلگ <code>--script</code></h3>
+    <p>
+      هنگام آماده‌سازی هر پروژه، فایل‌های خودکارسازی در پوشه <code>.specify/scripts/</code> کپی می‌شوند. شما می‌توانید زبان این اسکریپت‌ها را بر اساس سیستم‌عامل خود انتخاب کنید:
+    </p>
+    <div class="table-responsive">
+      <table class="doc-table">
+        <thead>
+          <tr>
+            <th>مقدار فلگ</th>
+            <th>سیستم‌عامل مقصد</th>
+            <th>توضیحات و کاربرد</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>--script sh</code></td>
+            <td>لینوکس و macOS</td>
+            <td>اسکریپت‌های Bash استاندارد. پیش‌فرض سیستم‌های یونیکسی.</td>
+          </tr>
+          <tr>
+            <td><code>--script ps</code></td>
+            <td>ویندوز (PowerShell)</td>
+            <td>اسکریپت‌های پاورشل (<code>.ps1</code>) بهینه‌شده برای محیط‌های ویندوزی.</td>
+          </tr>
+          <tr>
+            <td><code>--script py</code></td>
+            <td>مستقل از سیستم‌عامل (Cross-Platform)</td>
+            <td>اسکریپت‌های پایتونی تمیز که روی تمام سیستم‌عامل‌ها با رفتار یکسان اجرا می‌شوند.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3>۶. متغیرهای محیطی حیاتی (Environment Variables)</h3>
+    <p>
+      اگر می‌خواهید رفتار پیش‌فرض ابزار را در محیط CI/CD یا سیستم شخصی خود تنظیم کنید، متغیرهای زیر فوق‌العاده کاربردی هستند:
+    </p>
+    <div class="table-responsive">
+      <table class="doc-table">
+        <thead>
+          <tr>
+            <th>نام متغیر</th>
+            <th>کاربرد و رفتار</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>SPECKIT_INTEGRATION_DEFAULT</code></td>
+            <td>تعیین ایجنت هوش مصنوعی پیش‌فرض (مثلاً <code>copilot</code>، <code>claude</code>، یا <code>gemini</code>). اگر هنگام اجرای دستور <code>specify init</code> فلگ <code>--integration</code> را تعیین نکرده باشید، سیستم از این متغیر به عنوان ایجنت مقصد استفاده می‌کند.</td>
+          </tr>
+          <tr>
+            <td><code>SPECIFY_INIT_DIR</code></td>
+            <td>مخصوص ساختارهای Monorepo: تعیین ریشه پروژه فرعی بدون نیاز به تغییر پوشه با دستور <code>cd</code>.</td>
+          </tr>
+          <tr>
+            <td><code>SPECIFY_FEATURE_DIRECTORY</code></td>
+            <td>تعیین صریح پوشه فیچر فعال در <code>specs/</code> (اولویت بالاتر نسبت به فایل <code>.specify/feature.json</code>).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
